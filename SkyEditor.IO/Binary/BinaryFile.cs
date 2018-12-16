@@ -44,10 +44,6 @@ namespace SkyEditor.IO.Binary
 
         public Task<byte> ReadByteAsync(long index) => Accessor.ReadByteAsync(index);
 
-        public ReadOnlyMemory<byte> ReadMemory() => Accessor.ReadMemory();
-
-        public ReadOnlyMemory<byte> ReadMemory(long index, int length) => Accessor.ReadMemory(index, length);
-
         public Task<ReadOnlyMemory<byte>> ReadMemoryAsync() => Accessor.ReadMemoryAsync();
 
         public Task<ReadOnlyMemory<byte>> ReadMemoryAsync(long index, int length) => Accessor.ReadMemoryAsync(index, length);
@@ -68,11 +64,7 @@ namespace SkyEditor.IO.Binary
 
         public Task WriteAsync(long index, int length, byte[] value) => Accessor.WriteAsync(index, length, value);
 
-        public void Write(ReadOnlyMemory<byte> value) => Accessor.Write(value);
-
         public void Write(ReadOnlySpan<byte> value) => Accessor.Write(value);
-
-        public void Write(long index, int length, ReadOnlyMemory<byte> value) => Accessor.Write(index, length, value);
 
         public void Write(long index, int length, ReadOnlySpan<byte> value) => Accessor.Write(index, length, value);
 

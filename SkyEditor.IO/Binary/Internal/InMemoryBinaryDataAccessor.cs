@@ -125,19 +125,6 @@ namespace SkyEditor.IO.Binary.Internal
             }
         }
 
-        public void Write(long index, int length, ReadOnlyMemory<byte> value)
-        {
-            var toCopy = value.Slice(0, length);
-            if (index < int.MaxValue)
-            {
-                toCopy.CopyTo(RawData.AsMemory().Slice((int)index, length));
-            }
-            else
-            {
-                toCopy.ToArray().CopyTo(RawData, index);
-            }
-        }
-
         public void Write(long index, int length, ReadOnlySpan<byte> value)
         {
             var toCopy = value.Slice(0, length);

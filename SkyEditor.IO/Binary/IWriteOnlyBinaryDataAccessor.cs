@@ -23,12 +23,6 @@ namespace SkyEditor.IO
         /// Replaces the available data with the given value
         /// </summary>
         /// <param name="value">Data to write</param>
-        void Write(ReadOnlyMemory<byte> value);
-
-        /// <summary>
-        /// Replaces the available data with the given value
-        /// </summary>
-        /// <param name="value">Data to write</param>
         void Write(ReadOnlySpan<byte> value);
 
         /// <summary>
@@ -64,14 +58,6 @@ namespace SkyEditor.IO
         /// <param name="length">Upper bound of the data to write</param>
         /// <param name="value">Data to write</param>
         void Write(long index, int length, byte[] value);
-
-        /// <summary>
-        /// Writes the given data to the desired index
-        /// </summary>
-        /// <param name="index">Index of the data to write</param>
-        /// <param name="length">Upper bound of the data to write</param>
-        /// <param name="value">Data to write</param>
-        void Write(long index, int length, ReadOnlyMemory<byte> value);
 
         /// <summary>
         /// Writes the given data to the desired index

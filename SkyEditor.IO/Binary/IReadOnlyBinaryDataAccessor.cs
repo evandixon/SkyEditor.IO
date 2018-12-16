@@ -27,11 +27,6 @@ namespace SkyEditor.IO
         /// <summary>
         /// Reads all of the available data
         /// </summary>
-        ReadOnlyMemory<byte> ReadMemory();
-
-        /// <summary>
-        /// Reads all of the available data
-        /// </summary>
         ReadOnlySpan<byte> ReadSpan();
 
         /// <summary>
@@ -62,13 +57,6 @@ namespace SkyEditor.IO
         /// <param name="index">Index of the desired data</param>
         /// <param name="length"></param>
         byte[] ReadArray(long index, int length);
-
-        /// <summary>
-        /// Reads a subset of the available data
-        /// </summary>
-        /// <param name="index">Index of the desired data</param>
-        /// <param name="length"></param>
-        ReadOnlyMemory<byte> ReadMemory(long index, int length);
 
         /// <summary>
         /// Reads a subset of the available data

@@ -62,16 +62,6 @@ namespace SkyEditor.IO
             return Data.ReadArray(Offset, (int)Length);
         }
 
-        public ReadOnlyMemory<byte> ReadMemory()
-        {
-            if (Length > int.MaxValue)
-            {
-                throw new ArgumentException(Properties.Resources.Binary_ErrorLengthTooLarge);
-            }
-
-            return Data.ReadMemory(Offset, (int)Length);
-        }
-
         public ReadOnlySpan<byte> ReadSpan()
         {
             if (Length > int.MaxValue)
@@ -117,11 +107,6 @@ namespace SkyEditor.IO
             return Data.ReadArray(Offset + index, (int)Math.Min(Length, length));
         }
 
-        public ReadOnlyMemory<byte> ReadMemory(long index, int length)
-        {
-            return Data.ReadMemory(Offset + index, (int)Math.Min(Length, length));
-        }
-
         public ReadOnlySpan<byte> ReadSpan(long index, int length)
         {
             return Data.ReadSpan(Offset + index, (int)Math.Min(Length, length));
@@ -138,16 +123,6 @@ namespace SkyEditor.IO
         }
 
         public void Write(byte[] value)
-        {
-            if (Length > int.MaxValue)
-            {
-                throw new ArgumentException(Properties.Resources.Binary_ErrorLengthTooLarge);
-            }
-
-            Data.Write(Offset, (int)Length, value);
-        }
-
-        public void Write(ReadOnlyMemory<byte> value)
         {
             if (Length > int.MaxValue)
             {
@@ -193,11 +168,6 @@ namespace SkyEditor.IO
         }
 
         public void Write(long index, int length, byte[] value)
-        {
-            Data.Write(Offset + index, (int)Math.Min(length, Length), value);
-        }
-
-        public void Write(long index, int length, ReadOnlyMemory<byte> value)
         {
             Data.Write(Offset + index, (int)Math.Min(length, Length), value);
         }
