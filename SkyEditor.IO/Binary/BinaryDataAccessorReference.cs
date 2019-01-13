@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 namespace SkyEditor.IO
 {
     /// <summary>
-    /// Provides a view to a subset of a <see cref="IBinaryDataAccessor"/> or other <see cref="BinaryDataAccessorReference"/>
+    /// Provides a view to a subset of a <see cref="IVariableLengthBinaryDataAccessor"/> or other <see cref="BinaryDataAccessorReference"/>
     /// </summary>
-    public class BinaryDataAccessorReference : IBinaryDataAccessor
+    public class BinaryDataAccessorReference : IVariableLengthBinaryDataAccessor
     {
-        public BinaryDataAccessorReference(IBinaryDataAccessor data, long offset, long length)
+        public BinaryDataAccessorReference(IVariableLengthBinaryDataAccessor data, long offset, long length)
         {
             if (offset < 0)
             {
@@ -46,7 +46,7 @@ namespace SkyEditor.IO
             Length = length;
         }
 
-        private IBinaryDataAccessor Data { get; }
+        private IVariableLengthBinaryDataAccessor Data { get; }
 
         private long Offset { get; set; }
 
@@ -202,7 +202,7 @@ namespace SkyEditor.IO
         /// <param name="offset">Offset of the view</param>
         /// <param name="length">Maximum length of the view</param>
         /// <returns>A view on top of the data</returns>
-        public static BinaryDataAccessorReference GetDataReference(this IBinaryDataAccessor data, long offset, long length)
+        public static BinaryDataAccessorReference GetDataReference(this IVariableLengthBinaryDataAccessor data, long offset, long length)
         {
             return new BinaryDataAccessorReference(data, offset, length);
         }

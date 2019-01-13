@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SkyEditor.IO.Binary.Internal
 {
-    public class StreamBinaryDataAccessor : IBinaryDataAccessor
+    public class StreamBinaryDataAccessor : IVariableLengthBinaryDataAccessor
     {
         public StreamBinaryDataAccessor(Stream stream)
         {
@@ -15,7 +15,7 @@ namespace SkyEditor.IO.Binary.Internal
         }
 
         /// <summary>
-        /// The underlying data store which the current <see cref="IBinaryDataAccessor"/> interacts with
+        /// The underlying data store which the current <see cref="IO.IVariableLengthBinaryDataAccessor"/> interacts with
         /// </summary>
         public Stream SourceStream { get; set; }
 
@@ -270,6 +270,11 @@ namespace SkyEditor.IO.Binary.Internal
             {
                 StreamSemaphore.Release();
             }
+        }
+
+        public void SetLength(long length)
+        {
+            SourceStream.SetLength(length);
         }
     }
 }

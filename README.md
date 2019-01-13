@@ -14,12 +14,11 @@ Such a class is not included in this library for the time being.
 
 This class is an abstraction over reading a file from an arbitrary source. Thanks to the IBinaryDataAccessor interfaces, one can read subsets of the file with minimal additional allocations.
 
-This class will support reading from byte arrays, streams, and memory mapped files in a thread-safe manor, but for the time being, only supports arrays.
+This class is thread-safe unless otherwise indicated in the XML documentation.
 
-## Planned features
+Supported sources:
+* Byte arrays
+* Streams
 
-* BinaryFile
-    * Read from streams
-	* Read from memory mapped files
-	* Autodetect the best way to open the file based on the available memory
-* IFileSystem implementation to interact with zip files
+Planned sources:
+* Memory-mapped files

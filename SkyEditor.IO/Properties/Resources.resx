@@ -117,6 +117,12 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="BinaryFile_NotAllowedToCloseFile" xml:space="preserve">
+    <value>An attempt was made to resize a file in such a way that the file needed to be closed and reopened when the file cannot be closed.</value>
+  </data>
+  <data name="BinaryFile_SetLength_SizeToLarge" xml:space="preserve">
+    <value>The underlying data source does not support a length of the given size.</value>
+  </data>
   <data name="Binary_ErrorLengthTooLarge" xml:space="preserve">
     <value>Cannot read more than int.MaxValue bytes into memory</value>
   </data>

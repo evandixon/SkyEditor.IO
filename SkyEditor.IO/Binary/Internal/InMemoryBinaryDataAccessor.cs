@@ -5,26 +5,26 @@ using System.Threading.Tasks;
 
 namespace SkyEditor.IO.Binary.Internal
 {
-    internal class InMemoryBinaryDataAccessor : IBinaryDataAccessor
+    internal class InMemoryBinaryDataAccessor : IVariableLengthBinaryDataAccessor
     {
         public InMemoryBinaryDataAccessor(byte[] rawData)
         {
-            RawData = rawData ?? throw new ArgumentNullException(nameof(rawData));
+            _rawData = rawData ?? throw new ArgumentNullException(nameof(rawData));
         }
 
-        private byte[] RawData { get; set; }
+        private byte[] _rawData;
 
-        public long Length => RawData.LongLength;
+        public long Length => _rawData.LongLength;
 
         public byte[] ReadArray()
         {
-            return RawData;
+            return _rawData;
         }
 
         public byte[] ReadArray(long index, int length)
         {
             var output = new byte[length];
-            Array.Copy(RawData, index, output, 0, length);
+            Array.Copy(_rawData, index, output, 0, length);
             return output;
         }
 
@@ -40,7 +40,7 @@ namespace SkyEditor.IO.Binary.Internal
 
         public byte ReadByte(long index)
         {
-            return RawData[index];
+            return _rawData[index];
         }
 
         public Task<byte> ReadByteAsync(long index)
@@ -50,14 +50,14 @@ namespace SkyEditor.IO.Binary.Internal
 
         public ReadOnlyMemory<byte> ReadMemory()
         {
-            return RawData;
+            return _rawData;
         }
 
         public ReadOnlyMemory<byte> ReadMemory(long index, int length)
         {
             if (index < int.MaxValue)
             {
-                return RawData.AsMemory().Slice((int)index, length);
+                return _rawData.AsMemory().Slice((int)index, length);
             }
             else
             {
@@ -77,14 +77,14 @@ namespace SkyEditor.IO.Binary.Internal
 
         public ReadOnlySpan<byte> ReadSpan()
         {
-            return RawData.AsSpan();
+            return _rawData.AsSpan();
         }
 
         public ReadOnlySpan<byte> ReadSpan(long index, int length)
         {           
             if (index < int.MaxValue)
             {
-                return RawData.AsSpan().Slice((int)index, length);
+                return _rawData.AsSpan().Slice((int)index, length);
             }
             else
             {
@@ -94,22 +94,22 @@ namespace SkyEditor.IO.Binary.Internal
 
         public void Write(byte[] value)
         {
-            value.CopyTo(RawData, 0);
+            value.CopyTo(_rawData, 0);
         }
 
         public void Write(ReadOnlyMemory<byte> value)
         {
-            value.CopyTo(RawData);
+            value.CopyTo(_rawData);
         }
 
         public void Write(ReadOnlySpan<byte> value)
         {
-            value.CopyTo(RawData);
+            value.CopyTo(_rawData);
         }
 
         public void Write(long index, byte value)
         {
-            RawData[index] = value;
+            _rawData[index] = value;
         }
 
         public void Write(long index, int length, byte[] value)
@@ -117,11 +117,11 @@ namespace SkyEditor.IO.Binary.Internal
             var toCopy = value.AsMemory().Slice(0, length);
             if (index < int.MaxValue)
             {
-                toCopy.CopyTo(RawData.AsMemory().Slice((int)index, length));
+                toCopy.CopyTo(_rawData.AsMemory().Slice((int)index, length));
             }
             else
             {
-                toCopy.ToArray().CopyTo(RawData, index);
+                toCopy.ToArray().CopyTo(_rawData, index);
             }
         }
 
@@ -130,11 +130,11 @@ namespace SkyEditor.IO.Binary.Internal
             var toCopy = value.Slice(0, length);
             if (index < int.MaxValue)
             {
-                toCopy.CopyTo(RawData.AsSpan().Slice((int)index, length));
+                toCopy.CopyTo(_rawData.AsSpan().Slice((int)index, length));
             }
             else
             {
-                toCopy.ToArray().CopyTo(RawData, index);
+                toCopy.ToArray().CopyTo(_rawData, index);
             }
         }
 
@@ -172,6 +172,16 @@ namespace SkyEditor.IO.Binary.Internal
         {
             WriteAsync(index, length, value);
             return Task.CompletedTask;
+        }
+
+        public void SetLength(long length)
+        {
+            if (length > int.MaxValue)
+            {
+                throw new NotSupportedException(Properties.Resources.BinaryFile_SetLength_SizeToLarge);
+            }
+
+            Array.Resize(ref _rawData, (int)length);
         }
     }
 }

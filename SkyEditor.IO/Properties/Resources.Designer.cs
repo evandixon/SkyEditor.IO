@@ -77,5 +77,23 @@ namespace SkyEditor.IO.Properties {
                 return ResourceManager.GetString("Binary_ErrorReadOnly", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An attempt was made to resize a file in such a way that the file needed to be closed and reopened when the file cannot be closed..
+        /// </summary>
+        internal static string BinaryFile_NotAllowedToCloseFile {
+            get {
+                return ResourceManager.GetString("BinaryFile_NotAllowedToCloseFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The underlying data source does not support a length of the given size..
+        /// </summary>
+        internal static string BinaryFile_SetLength_SizeToLarge {
+            get {
+                return ResourceManager.GetString("BinaryFile_SetLength_SizeToLarge", resourceCulture);
+            }
+        }
     }
 }
