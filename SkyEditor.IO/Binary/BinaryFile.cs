@@ -3,6 +3,7 @@ using SkyEditor.IO.FileSystem;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.MemoryMappedFiles;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -33,28 +34,48 @@ namespace SkyEditor.IO.Binary
 
         private void OpenAutodetectFormat(string filename, IFileSystem fileSystem)
         {
-            byte[] byteArray;
-            try
+            CloseFileResources(); // Resources should already be null, but if this isn't called, we may leave a file open accidentally. Luckily it's safe to call this multiple times.
+
+            var fileLength = fileSystem.GetFileLength(filename);
+
+            // First try a byte array
+            // It's the fastest, but has the biggest memory footprint
+            // We might not be able to fit a large file into memory, and I don't know how to open a 2GB or larger file in memory,
+            // so we may have to fall back onto something else
+            if (fileLength < int.MaxValue)
             {
-                byteArray = fileSystem.ReadAllBytes(filename);
-            }
-            catch (OutOfMemoryException)
-            {
-                // The file's too large to fit into memory as an array.
-                // We need to instead use a less memory-intensive container.
-                byteArray = null;
+                byte[] byteArray;
+                try
+                {
+                    byteArray = fileSystem.ReadAllBytes(filename);
+                }
+                catch (OutOfMemoryException)
+                {
+                    byteArray = null;
+                }
+
+                if (byteArray != null)
+                {
+                    Accessor = new InMemoryBinaryDataAccessor(byteArray);
+                    return;
+                }
             }
 
-            if (byteArray != null)
+            // Next, try a memory mapped file system
+            // Its speed is comparable to a byte array, but slightly slower (difference may be bigger since the InMemoryBinaryDataAccessor is the only one to support Span and Memory, which I have not yet seen the speed of first-hand)
+            // This method might not be available depending on whether or not we have a real file system at our disposal
+            // In the future, this may need to be feature-switchable, since we can't resize this file without disposing of it first
+            if (fileSystem is IMemoryMappableFileSystem memoryMappableFileSystem)
             {
-                Accessor = new InMemoryBinaryDataAccessor(byteArray);
+                MemoryMappedFile = memoryMappableFileSystem.OpenMemoryMappedFile(filename);
+                Accessor = new MemoryMappedFileDataAccessor(MemoryMappedFile, fileLength);
+                return;
             }
-            else
-            {
-                DisposeStream();
-                SourceStream = fileSystem.OpenFile(filename);
-                Accessor = new StreamBinaryDataAccessor(SourceStream);
-            }
+
+            // If all else fails, we can use a stream.    
+            // It's the slowest since it is not thread-safe, and the StreamBinaryDataAccessor has to use appropriate locking
+            SourceStream = fileSystem.OpenFile(filename);
+            Accessor = new StreamBinaryDataAccessor(SourceStream);
         }
 
         private IBinaryDataAccessor Accessor { get; set; }
@@ -69,6 +90,11 @@ namespace SkyEditor.IO.Binary
         /// If this is null, then this class is not allowed to close the <see cref="Accessor"/> or its resources, since this class cannot reopen it afterward.
         /// </remarks>
         private IFileSystem FileSystem { get; set; }
+
+        /// <summary>
+        /// The underlying memory mapped file, if applicable
+        /// </summary>
+        private MemoryMappedFile MemoryMappedFile { get; set; }
 
         /// <summary>
         /// The underlying data source if the binary file is being accessed as a stream.
@@ -155,7 +181,7 @@ namespace SkyEditor.IO.Binary
                 throw new InvalidOperationException(Properties.Resources.BinaryFile_NotAllowedToCloseFile);
             }
 
-            DisposeStream();
+            CloseFileResources();
 
             using (var stream = FileSystem.OpenFile(Filename))
             {
@@ -167,15 +193,23 @@ namespace SkyEditor.IO.Binary
 
         public void Dispose()
         {
-            DisposeStream();
+            CloseFileResources();
         }
 
-        private void DisposeStream()
+        private void CloseFileResources()
         {
-            if (SourceStream != null && FileSystem != null)
+            if (FileSystem != null)
             {
-                SourceStream.Dispose();
-                SourceStream = null;
+                if (MemoryMappedFile != null)
+                {
+                    MemoryMappedFile.Dispose();
+                    MemoryMappedFile = null;
+                }
+                if (SourceStream != null)
+                {
+                    SourceStream.Dispose();
+                    SourceStream = null;
+                }
             }
         }
     }
