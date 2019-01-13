@@ -112,6 +112,7 @@ namespace SkyEditor.IO.Binary.Internal
             }
         }
 
+#if ENABLE_SPAN_AND_MEMORY
         public async Task<ReadOnlyMemory<byte>> ReadMemoryAsync()
         {
             return await ReadArrayAsync();
@@ -131,6 +132,7 @@ namespace SkyEditor.IO.Binary.Internal
         {
             return ReadArray(index, length);
         }
+#endif
 
         public void Write(byte[] value)
         {
@@ -146,6 +148,7 @@ namespace SkyEditor.IO.Binary.Internal
             }            
         }
 
+#if ENABLE_SPAN_AND_MEMORY
         public void Write(ReadOnlySpan<byte> value)
         {
             try
@@ -159,6 +162,7 @@ namespace SkyEditor.IO.Binary.Internal
                 StreamSemaphore.Release();
             }
         }
+#endif
 
         public void Write(long index, byte value)
         {
@@ -188,6 +192,7 @@ namespace SkyEditor.IO.Binary.Internal
             }
         }
 
+#if ENABLE_SPAN_AND_MEMORY
         public void Write(long index, int length, ReadOnlySpan<byte> value)
         {
             try
@@ -201,6 +206,7 @@ namespace SkyEditor.IO.Binary.Internal
                 StreamSemaphore.Release();
             }
         }
+#endif
 
         public async Task WriteAsync(byte[] value)
         {
@@ -216,6 +222,7 @@ namespace SkyEditor.IO.Binary.Internal
             }
         }
 
+#if ENABLE_SPAN_AND_MEMORY
         public async Task WriteAsync(ReadOnlyMemory<byte> value)
         {
             try
@@ -229,6 +236,7 @@ namespace SkyEditor.IO.Binary.Internal
                 StreamSemaphore.Release();
             }
         }
+#endif
 
         public async Task WriteAsync(long index, byte value)
         {
@@ -258,6 +266,7 @@ namespace SkyEditor.IO.Binary.Internal
             }
         }
 
+#if ENABLE_SPAN_AND_MEMORY
         public async Task WriteAsync(long index, int length, ReadOnlyMemory<byte> value)
         {
             try
@@ -271,6 +280,7 @@ namespace SkyEditor.IO.Binary.Internal
                 StreamSemaphore.Release();
             }
         }
+#endif
 
         public void SetLength(long length)
         {

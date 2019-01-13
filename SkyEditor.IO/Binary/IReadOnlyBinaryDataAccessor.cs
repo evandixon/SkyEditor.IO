@@ -24,20 +24,26 @@ namespace SkyEditor.IO
         /// </summary>
         byte[] ReadArray();
 
+#if ENABLE_SPAN_AND_MEMORY
+
         /// <summary>
         /// Reads all of the available data
         /// </summary>
         ReadOnlySpan<byte> ReadSpan();
+
+#endif
 
         /// <summary>
         /// Reads all of the available data
         /// </summary>
         Task<byte[]> ReadArrayAsync();
 
+#if ENABLE_SPAN_AND_MEMORY
         /// <summary>
         /// Reads all of the available data
         /// </summary>
         Task<ReadOnlyMemory<byte>> ReadMemoryAsync();
+#endif
 
         /// <summary>
         /// Reads a byte at the given index
@@ -58,12 +64,14 @@ namespace SkyEditor.IO
         /// <param name="length"></param>
         byte[] ReadArray(long index, int length);
 
+#if ENABLE_SPAN_AND_MEMORY
         /// <summary>
         /// Reads a subset of the available data
         /// </summary>
         /// <param name="index">Index of the desired data</param>
         /// <param name="length"></param>
         ReadOnlySpan<byte> ReadSpan(long index, int length);
+#endif
 
         /// <summary>
         /// Reads a subset of the available data
@@ -72,17 +80,19 @@ namespace SkyEditor.IO
         /// <param name="length">Length of data to read</param>
         Task<byte[]> ReadArrayAsync(long index, int length);
 
+#if ENABLE_SPAN_AND_MEMORY
         /// <summary>
         /// Reads a subset of the available data
         /// </summary>
         /// <param name="index">Index of the desired data</param>
         /// <param name="length">Length of data to read</param>
         Task<ReadOnlyMemory<byte>> ReadMemoryAsync(long index, int length);
+#endif
     }
 
     public static class IReadOnlyBinaryDataAccessorExtensions
     {
-        #region Integer Reads
+#region Integer Reads
 
         /// <summary>
         /// Reads a signed 16 bit little endian integer
@@ -91,7 +101,11 @@ namespace SkyEditor.IO
         /// <returns>The integer from the given location</returns>
         public static Int16 ReadInt16(this IReadOnlyBinaryDataAccessor accessor, long offset)
         {
+#if ENABLE_SPAN_AND_MEMORY
             return BitConverter.ToInt16(accessor.ReadSpan(offset, 2));
+#else
+            return BitConverter.ToInt16(accessor.ReadArray(offset, 2), 0);
+#endif
         }
 
         /// <summary>
@@ -111,7 +125,11 @@ namespace SkyEditor.IO
         /// <returns>The integer from the given location</returns>
         public static Int32 ReadInt32(this IReadOnlyBinaryDataAccessor accessor, long offset)
         {
+#if ENABLE_SPAN_AND_MEMORY
             return BitConverter.ToInt32(accessor.ReadSpan(offset, 4));
+#else
+            return BitConverter.ToInt32(accessor.ReadArray(offset, 4), 0);
+#endif
         }
 
         /// <summary>
@@ -131,7 +149,11 @@ namespace SkyEditor.IO
         /// <returns>The integer from the given location</returns>
         public static Int64 ReadInt64(this IReadOnlyBinaryDataAccessor accessor, long offset)
         {
+#if ENABLE_SPAN_AND_MEMORY
             return BitConverter.ToInt64(accessor.ReadSpan(offset, 8));
+#else
+            return BitConverter.ToInt64(accessor.ReadArray(offset, 8), 0);
+#endif
         }
 
         /// <summary>
@@ -151,7 +173,11 @@ namespace SkyEditor.IO
         /// <returns>The integer from the given location</returns>
         public static UInt16 ReadUInt16(this IReadOnlyBinaryDataAccessor accessor, long offset)
         {
+#if ENABLE_SPAN_AND_MEMORY
             return BitConverter.ToUInt16(accessor.ReadSpan(offset, 2));
+#else
+            return BitConverter.ToUInt16(accessor.ReadArray(offset, 2), 0);
+#endif
         }
 
         /// <summary>
@@ -171,7 +197,11 @@ namespace SkyEditor.IO
         /// <returns>The integer from the given location</returns>
         public static UInt32 ReadUInt32(this IReadOnlyBinaryDataAccessor accessor, long offset)
         {
+#if ENABLE_SPAN_AND_MEMORY
             return BitConverter.ToUInt32(accessor.ReadSpan(offset, 4));
+#else
+            return BitConverter.ToUInt32(accessor.ReadArray(offset, 4), 0);
+#endif
         }
 
         /// <summary>
@@ -191,7 +221,11 @@ namespace SkyEditor.IO
         /// <returns>The integer from the given location</returns>
         public static UInt64 ReadUInt64(this IReadOnlyBinaryDataAccessor accessor, long offset)
         {
+#if ENABLE_SPAN_AND_MEMORY
             return BitConverter.ToUInt64(accessor.ReadSpan(offset, 8));
+#else
+            return BitConverter.ToUInt64(accessor.ReadArray(offset, 8), 0);
+#endif
         }
 
         /// <summary>
@@ -203,9 +237,9 @@ namespace SkyEditor.IO
         {
             return BitConverter.ToUInt64(await accessor.ReadArrayAsync(offset, 8), 0);
         }
-        #endregion
+#endregion
 
-        #region Big Endian Reads
+#region Big Endian Reads
 
         /// <summary>
         /// Reads a signed 16 bit big endian integer
@@ -350,9 +384,9 @@ namespace SkyEditor.IO
             Array.Reverse(bytes);
             return BitConverter.ToUInt64(bytes, 0);
         }
-        #endregion
+#endregion
 
-        #region String Reads
+#region String Reads
 
         /// <summary>
         /// Reads a UTF-16 string
@@ -467,6 +501,6 @@ namespace SkyEditor.IO
         {
             return e.GetString(await accessor.ReadArrayAsync(index, length), 0, length);
         }
-        #endregion
+#endregion
     }
 }
