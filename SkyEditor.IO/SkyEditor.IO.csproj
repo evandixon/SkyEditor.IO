@@ -2,6 +2,14 @@
 
   <PropertyGroup>
     <TargetFrameworks>netcoreapp2.2;net462</TargetFrameworks>
+    <Description>File and file system abstractions for file editing code libraries</Description>
+    <Authors>evandixon</Authors>
+    <Company>SkyEditor</Company>
+    <Version>5.0.0</Version>
+    <Copyright>2018-2019</Copyright>
+    <PackageLicenseUrl>https://github.com/evandixon/SkyEditor.IO/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl></PackageProjectUrl>
+    <RepositoryUrl>https://github.com/evandixon/SkyEditor.IO</RepositoryUrl>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.1'">
