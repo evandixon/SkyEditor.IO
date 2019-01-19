@@ -79,6 +79,15 @@ namespace SkyEditor.IO.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Attempted to save the file without having ever specified a filename..
+        /// </summary>
+        internal static string BinaryFile_ErrorSavedWithoutFilenameOrFilesystem {
+            get {
+                return ResourceManager.GetString("BinaryFile_ErrorSavedWithoutFilenameOrFilesystem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to An attempt was made to resize a file in such a way that the file needed to be closed and reopened when the file cannot be closed..
         /// </summary>
         internal static string BinaryFile_NotAllowedToCloseFile {

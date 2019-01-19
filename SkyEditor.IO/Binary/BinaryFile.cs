@@ -27,7 +27,12 @@ namespace SkyEditor.IO.Binary
             Accessor = new InMemoryBinaryDataAccessor(rawData);
         }
 
-        private BinaryFile(Stream stream)
+        public BinaryFile(MemoryMappedFile memoryMappedFile, int fileLength)
+        {
+            Accessor = new MemoryMappedFileDataAccessor(memoryMappedFile, fileLength);
+        }
+
+        public BinaryFile(Stream stream)
         {
             Accessor = new StreamBinaryDataAccessor(stream);
         }
@@ -76,6 +81,67 @@ namespace SkyEditor.IO.Binary
             // It's the slowest since it is not thread-safe, and the StreamBinaryDataAccessor has to use appropriate locking
             SourceStream = fileSystem.OpenFile(filename);
             Accessor = new StreamBinaryDataAccessor(SourceStream);
+        }
+
+        public async Task Save(string filename, IFileSystem fileSystem)
+        {
+            if (string.IsNullOrEmpty(filename))
+            {
+                throw new ArgumentNullException(nameof(filename));
+            }
+            if (fileSystem == null)
+            {
+                throw new ArgumentNullException(nameof(fileSystem));
+            }
+
+            switch (Accessor)
+            {
+                case InMemoryBinaryDataAccessor inMemoryAccessor:
+                    fileSystem.WriteAllBytes(filename, inMemoryAccessor.ReadArray());
+                    break;
+                case MemoryMappedFileDataAccessor memoryMappedAccessor:
+                    if (this.Filename == filename)
+                    {
+                        // Trying to save to the current file
+                        // To-do: determine if the file flushes automatically
+
+                        break;
+                    }
+
+                    var memoryMappedStreamView = MemoryMappedFile.CreateViewStream();
+                    using (var dest = fileSystem.OpenFileWriteOnly(filename))
+                    {
+                        await memoryMappedStreamView.CopyToAsync(dest);
+                    }
+                    break;
+                case StreamBinaryDataAccessor streamAccessor:
+                    var source = streamAccessor.SourceStream;
+                    if (this.Filename == filename)
+                    {
+                        // Trying to save to the current file
+                        await source.FlushAsync();
+                        break;
+                    }
+                    
+                    source.Seek(0, SeekOrigin.Begin);
+                    using (var dest = fileSystem.OpenFileWriteOnly(filename))
+                    {
+                        await source.CopyToAsync(dest);
+                    }
+                    break;
+                default:
+                    throw new NotImplementedException("Unsupported IBinaryDataAccessor type: " + Accessor.GetType().Name);
+            }
+        }
+
+        public async Task Save()
+        {
+            if (string.IsNullOrEmpty(Filename) || FileSystem == null)
+            {
+                throw new InvalidOperationException(Properties.Resources.BinaryFile_ErrorSavedWithoutFilenameOrFilesystem);
+            }
+
+            await Save(Filename, FileSystem);
         }
 
         private IBinaryDataAccessor Accessor { get; set; }
