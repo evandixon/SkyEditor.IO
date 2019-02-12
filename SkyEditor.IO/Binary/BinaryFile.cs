@@ -74,7 +74,20 @@ namespace SkyEditor.IO.Binary
             {
                 MemoryMappedFile = memoryMappableFileSystem.OpenMemoryMappedFile(filename);
                 Accessor = new MemoryMappedFileDataAccessor(MemoryMappedFile, fileLength);
-                return;
+                try
+                {
+                    // Sometimes we might not have enough memory.
+                    // When that happens, we get an IOException saying something "There are not enough memory resources available"
+                    if (MemoryMappedFile.CreateViewAccessor().Capacity > -1) // Compare the capacity to -1 just to see if we get an IOException
+                    {
+                        return;
+                    }
+                }
+                catch (IOException)
+                {
+                    // We can't use a MemoryMapped file.
+                    // Streams are more reliable anyway; just slower.
+                }
             }
 
             // If all else fails, we can use a stream.    
