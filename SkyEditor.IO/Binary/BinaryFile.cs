@@ -146,7 +146,7 @@ namespace SkyEditor.IO.Binary
 
         private IBinaryDataAccessor Accessor { get; set; }
 
-        private string Filename { get; set; }
+        public string Filename { get; protected set; }
 
         /// <summary>
         /// The underlying file system from which data is retrieved.
