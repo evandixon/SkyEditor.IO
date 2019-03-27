@@ -274,7 +274,7 @@ namespace SkyEditor.IO.Binary
             OpenAutodetectFormat(Filename, FileSystem);
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             CloseFileResources();
         }
