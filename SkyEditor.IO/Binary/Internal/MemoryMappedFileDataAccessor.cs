@@ -31,7 +31,10 @@ namespace SkyEditor.IO.Binary.Internal
         public byte[] ReadArray(long index, int length)
         {
             var buffer = new byte[length];
-            _file.CreateViewAccessor(index, length).ReadArray(0, buffer, 0, length);
+            using (var accessor = _file.CreateViewAccessor(index, length))
+            {
+                accessor.ReadArray(0, buffer, 0, length);
+            }            
             return buffer;
         }
 
@@ -47,7 +50,10 @@ namespace SkyEditor.IO.Binary.Internal
 
         public byte ReadByte(long index)
         {
-            return _file.CreateViewAccessor(index, 1).ReadByte(0);
+            using (var accessor = _file.CreateViewAccessor(index, 1))
+            {
+                return accessor.ReadByte(0);
+            }
         }
 
         public Task<byte> ReadByteAsync(long index)
@@ -79,7 +85,10 @@ namespace SkyEditor.IO.Binary.Internal
 
         public void Write(byte[] value)
         {
-            _file.CreateViewAccessor().WriteArray(0, value, 0, value.Length);
+            using (var accessor = _file.CreateViewAccessor())
+            {
+                accessor.WriteArray(0, value, 0, value.Length);
+            }
         }
 
 #if ENABLE_SPAN_AND_MEMORY
@@ -91,12 +100,18 @@ namespace SkyEditor.IO.Binary.Internal
 
         public void Write(long index, byte value)
         {
-            _file.CreateViewAccessor(index, 1).Write(0, value);
+            using (var accessor = _file.CreateViewAccessor(index, 1))
+            {
+                accessor.Write(0, value);
+            }
         }
 
         public void Write(long index, int length, byte[] value)
         {
-            _file.CreateViewAccessor(index, length).WriteArray(0, value, 0, length);
+            using (var accessor = _file.CreateViewAccessor(index, length))
+            {
+                accessor.WriteArray(0, value, 0, length);
+            }
         }
 
 #if ENABLE_SPAN_AND_MEMORY
