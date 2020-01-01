@@ -218,7 +218,14 @@ namespace SkyEditor.IO.Binary
         /// <returns>A view on top of the data</returns>
         public static BinaryDataAccessorReference GetDataReference(this IBinaryDataAccessor data, long offset, long length)
         {
-            return new BinaryDataAccessorReference(data, offset, length);
+            if (data is BinaryDataAccessorReference reference)
+            {
+                return new BinaryDataAccessorReference(reference, offset, length);
+            }
+            else
+            {
+                return new BinaryDataAccessorReference(data, offset, length);
+            }
         }
     }
 }
