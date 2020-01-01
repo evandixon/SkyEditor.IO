@@ -132,4 +132,7 @@
   <data name="Binary_ErrorReadOnly" xml:space="preserve">
     <value>Attempted to write to read-only data.</value>
   </data>
+  <data name="WriteOnlyBinaryDataAccessor_SourceDataTooLarge" xml:space="preserve">
+    <value>Attempted to write more data than is allocated by the current data accessor</value>
+  </data>
 </root>

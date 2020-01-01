@@ -19,7 +19,7 @@ namespace SkyEditor.IO.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -102,6 +102,15 @@ namespace SkyEditor.IO.Properties {
         internal static string BinaryFile_SetLength_SizeToLarge {
             get {
                 return ResourceManager.GetString("BinaryFile_SetLength_SizeToLarge", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Attempted to write more data than is allocated by the current data accessor.
+        /// </summary>
+        internal static string WriteOnlyBinaryDataAccessor_SourceDataTooLarge {
+            get {
+                return ResourceManager.GetString("WriteOnlyBinaryDataAccessor_SourceDataTooLarge", resourceCulture);
             }
         }
     }

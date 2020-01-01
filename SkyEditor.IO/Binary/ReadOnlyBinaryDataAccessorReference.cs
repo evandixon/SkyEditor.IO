@@ -142,7 +142,15 @@ namespace SkyEditor.IO.Binary
         /// <returns>A view on top of the data</returns>
         public static ReadOnlyBinaryDataAccessorReference GetReadOnlyDataReference(this IReadOnlyBinaryDataAccessor data, long offset, long length)
         {
-            return new ReadOnlyBinaryDataAccessorReference(data, offset, length);
+            if (data is ReadOnlyBinaryDataAccessorReference reference)
+            {
+                // Use the overload that allows lesser chaining
+                return new ReadOnlyBinaryDataAccessorReference(reference, offset, length);
+            }
+            else
+            {
+                return new ReadOnlyBinaryDataAccessorReference(data, offset, length);
+            }
         }
     }
 }
