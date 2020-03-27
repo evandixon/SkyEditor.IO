@@ -48,7 +48,6 @@ namespace SkyEditor.IO.Binary.Internal
             return Task.FromResult(ReadByte(index));
         }
 
-#if ENABLE_SPAN_AND_MEMORY
         public ReadOnlyMemory<byte> ReadMemory()
         {
             return _rawData;
@@ -92,14 +91,12 @@ namespace SkyEditor.IO.Binary.Internal
                 return ReadArray(index, length);
             }
         }
-#endif
 
         public void Write(byte[] value)
         {
             value.CopyTo(_rawData, 0);
         }
 
-#if ENABLE_SPAN_AND_MEMORY
         public void Write(ReadOnlyMemory<byte> value)
         {
             value.CopyTo(_rawData);
@@ -109,7 +106,6 @@ namespace SkyEditor.IO.Binary.Internal
         {
             value.CopyTo(_rawData);
         }
-#endif
 
         public void Write(long index, byte value)
         {
@@ -118,7 +114,6 @@ namespace SkyEditor.IO.Binary.Internal
 
         public void Write(long index, int length, byte[] value)
         {
-#if ENABLE_SPAN_AND_MEMORY
             var toCopy = value.AsMemory().Slice(0, length);
             if (index < int.MaxValue)
             {
@@ -128,12 +123,8 @@ namespace SkyEditor.IO.Binary.Internal
             {
                 toCopy.ToArray().CopyTo(_rawData, index);
             }
-#else
-            Array.Copy(value, 0, _rawData, index, length);
-#endif
         }
 
-#if ENABLE_SPAN_AND_MEMORY
         public void Write(long index, int length, ReadOnlySpan<byte> value)
         {
             var toCopy = value.Slice(0, length);
@@ -146,7 +137,6 @@ namespace SkyEditor.IO.Binary.Internal
                 toCopy.ToArray().CopyTo(_rawData, index);
             }
         }
-#endif
 
         public Task WriteAsync(byte[] value)
         {
@@ -154,13 +144,11 @@ namespace SkyEditor.IO.Binary.Internal
             return Task.CompletedTask;
         }
 
-#if ENABLE_SPAN_AND_MEMORY
         public Task WriteAsync(ReadOnlyMemory<byte> value)
         {
             Write(value);
             return Task.CompletedTask;
         }
-#endif
 
         public Task WriteAsync(long index, byte value)
         {
@@ -173,7 +161,6 @@ namespace SkyEditor.IO.Binary.Internal
             Write(index, length, value);
             return Task.CompletedTask;
         }
-#if ENABLE_SPAN_AND_MEMORY
 
         public Task WriteAsync(long index, int length, ReadOnlyMemory<byte> value)
         {
@@ -186,7 +173,6 @@ namespace SkyEditor.IO.Binary.Internal
             WriteAsync(index, length, value);
             return Task.CompletedTask;
         }
-#endif
 
         public void SetLength(long length)
         {

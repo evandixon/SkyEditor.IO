@@ -62,7 +62,6 @@ namespace SkyEditor.IO.Binary
             return Data.ReadArray(Offset, (int)Length);
         }
 
-#if ENABLE_SPAN_AND_MEMORY
         public ReadOnlySpan<byte> ReadSpan()
         {
             if (Length > int.MaxValue)
@@ -72,7 +71,6 @@ namespace SkyEditor.IO.Binary
 
             return Data.ReadSpan(Offset, (int)Length);
         }
-#endif
 
         public async Task<byte[]> ReadArrayAsync()
         {
@@ -84,7 +82,6 @@ namespace SkyEditor.IO.Binary
             return await Data.ReadArrayAsync(Offset, (int)Length);
         }
 
-#if ENABLE_SPAN_AND_MEMORY
         public async Task<ReadOnlyMemory<byte>> ReadMemoryAsync()
         {
             if (Length > int.MaxValue)
@@ -94,7 +91,6 @@ namespace SkyEditor.IO.Binary
 
             return await Data.ReadMemoryAsync(Offset, (int)Length);
         }
-#endif
 
         public byte ReadByte(long index)
         {
@@ -111,24 +107,20 @@ namespace SkyEditor.IO.Binary
             return Data.ReadArray(Offset + index, (int)Math.Min(Length, length));
         }
 
-#if ENABLE_SPAN_AND_MEMORY
         public ReadOnlySpan<byte> ReadSpan(long index, int length)
         {
             return Data.ReadSpan(Offset + index, (int)Math.Min(Length, length));
         }
-#endif
 
         public async Task<byte[]> ReadArrayAsync(long index, int length)
         {
             return await Data.ReadArrayAsync(Offset + index, (int)Math.Min(Length, length));
         }
 
-#if ENABLE_SPAN_AND_MEMORY
         public async Task<ReadOnlyMemory<byte>> ReadMemoryAsync(long index, int length)
         {
             return await Data.ReadMemoryAsync(Offset + index, (int)Math.Min(Length, length));
         }
-#endif        
     }
 
     public static class IReadOnlyBinaryDataAccessorExtensions

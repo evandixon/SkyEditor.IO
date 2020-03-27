@@ -19,13 +19,11 @@ namespace SkyEditor.IO
         /// <param name="value">Data to write</param>
         void Write(byte[] value);
 
-#if ENABLE_SPAN_AND_MEMORY
         /// <summary>
         /// Replaces the available data with the given value
         /// </summary>
         /// <param name="value">Data to write</param>
         void Write(ReadOnlySpan<byte> value);
-#endif
 
         /// <summary>
         /// Replaces the available data with the given value
@@ -33,13 +31,11 @@ namespace SkyEditor.IO
         /// <param name="value">Data to write</param>
         Task WriteAsync(byte[] value);
 
-#if ENABLE_SPAN_AND_MEMORY
         /// <summary>
         /// Replaces the available data with the given value
         /// </summary>
         /// <param name="value">Data to write</param>
         Task WriteAsync(ReadOnlyMemory<byte> value);
-#endif
 
         /// <summary>
         /// Writes a byte to the desired index
@@ -63,7 +59,6 @@ namespace SkyEditor.IO
         /// <param name="value">Data to write</param>
         void Write(long index, int length, byte[] value);
 
-#if ENABLE_SPAN_AND_MEMORY
         /// <summary>
         /// Writes the given data to the desired index
         /// </summary>
@@ -71,7 +66,6 @@ namespace SkyEditor.IO
         /// <param name="length">Upper bound of the data to write</param>
         /// <param name="value">Data to write</param>
         void Write(long index, int length, ReadOnlySpan<byte> value);
-#endif
 
         /// <summary>
         /// Writes the given data to the desired index
@@ -81,7 +75,6 @@ namespace SkyEditor.IO
         /// <param name="value">Data to write</param>
         Task WriteAsync(long index, int length, byte[] value);
 
-#if ENABLE_SPAN_AND_MEMORY
         /// <summary>
         /// Writes the given data to the desired index
         /// </summary>
@@ -89,8 +82,7 @@ namespace SkyEditor.IO
         /// <param name="length">Upper bound of the data to write</param>
         /// <param name="value">Data to write</param>
         Task WriteAsync(long index, int length, ReadOnlyMemory<byte> value);
-#endif
-    }
+     }
 
     public static class IWriteOnlyBinaryDataAccessorExtensions
     {

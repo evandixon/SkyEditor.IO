@@ -199,7 +199,6 @@ namespace SkyEditor.IO.Binary
 
         public Task<byte> ReadByteAsync(long index) => Accessor.ReadByteAsync(index);
 
-#if ENABLE_SPAN_AND_MEMORY
         public Task<ReadOnlyMemory<byte>> ReadMemoryAsync() => Accessor.ReadMemoryAsync();
 
         public Task<ReadOnlyMemory<byte>> ReadMemoryAsync(long index, int length) => Accessor.ReadMemoryAsync(index, length);
@@ -207,7 +206,6 @@ namespace SkyEditor.IO.Binary
         public ReadOnlySpan<byte> ReadSpan() => Accessor.ReadSpan();
 
         public ReadOnlySpan<byte> ReadSpan(long index, int length) => Accessor.ReadSpan(index, length);
-#endif
 
         public void Write(byte[] value) => Accessor.Write(value);
 
@@ -221,7 +219,6 @@ namespace SkyEditor.IO.Binary
 
         public Task WriteAsync(long index, int length, byte[] value) => Accessor.WriteAsync(index, length, value);
 
-#if ENABLE_SPAN_AND_MEMORY
         public void Write(ReadOnlySpan<byte> value) => Accessor.Write(value);
 
         public void Write(long index, int length, ReadOnlySpan<byte> value) => Accessor.Write(index, length, value);
@@ -229,8 +226,7 @@ namespace SkyEditor.IO.Binary
         public Task WriteAsync(ReadOnlyMemory<byte> value) => Accessor.WriteAsync(value);
 
         public Task WriteAsync(long index, int length, ReadOnlyMemory<byte> value) => Accessor.WriteAsync(index, length, value);
-#endif
-        
+         
         /// <summary>
         /// Resizes the file. This method is NOT thread safe
         /// </summary>
