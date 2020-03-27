@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Buffers.Binary;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -114,7 +114,9 @@ namespace SkyEditor.IO
         /// <param name="value">The integer to write</param>
         public static void WriteInt16(this IWriteOnlyBinaryDataAccessor accessor, long offset, Int16 value)
         {
-            accessor.Write(offset, 2, BitConverter.GetBytes(value));
+            Span<byte> bytes = stackalloc byte[sizeof(Int16)];
+            BinaryPrimitives.WriteInt16LittleEndian(bytes, value);
+            accessor.Write(offset, sizeof(Int16), bytes);
         }
 
         /// <summary>
@@ -124,7 +126,9 @@ namespace SkyEditor.IO
         /// <param name="value">The integer to write</param>
         public static async Task WriteInt16Async(this IWriteOnlyBinaryDataAccessor accessor, long offset, Int16 value)
         {
-            await accessor.WriteAsync(offset, 2, BitConverter.GetBytes(value));
+            Memory<byte> bytes = new byte[sizeof(Int16)];
+            BinaryPrimitives.WriteInt16LittleEndian(bytes.Span, value);
+            await accessor.WriteAsync(offset, sizeof(Int16), bytes);
         }
 
         /// <summary>
@@ -134,7 +138,9 @@ namespace SkyEditor.IO
         /// <param name="value">The integer to write</param>
         public static void WriteInt32(this IWriteOnlyBinaryDataAccessor accessor, long offset, Int32 value)
         {
-            accessor.Write(offset, 4, BitConverter.GetBytes(value));
+            Span<byte> bytes = stackalloc byte[sizeof(Int32)];
+            BinaryPrimitives.WriteInt32LittleEndian(bytes, value);
+            accessor.Write(offset, sizeof(Int32), bytes);
         }
 
         /// <summary>
@@ -144,7 +150,9 @@ namespace SkyEditor.IO
         /// <param name="value">The integer to write</param>
         public static async Task WriteInt32Async(this IWriteOnlyBinaryDataAccessor accessor, long offset, Int32 value)
         {
-            await accessor.WriteAsync(offset, 4, BitConverter.GetBytes(value));
+            Memory<byte> bytes = new byte[sizeof(Int32)];
+            BinaryPrimitives.WriteInt32LittleEndian(bytes.Span, value);
+            await accessor.WriteAsync(offset, sizeof(Int32), bytes);
         }
 
         /// <summary>
@@ -154,7 +162,9 @@ namespace SkyEditor.IO
         /// <param name="value">The integer to write</param>
         public static void WriteInt64(this IWriteOnlyBinaryDataAccessor accessor, long offset, Int64 value)
         {
-            accessor.Write(offset, 8, BitConverter.GetBytes(value));
+            Span<byte> bytes = stackalloc byte[sizeof(Int64)];
+            BinaryPrimitives.WriteInt64LittleEndian(bytes, value);
+            accessor.Write(offset, sizeof(Int64), bytes);
         }
 
         /// <summary>
@@ -164,7 +174,9 @@ namespace SkyEditor.IO
         /// <param name="value">The integer to write</param>
         public static async Task WriteInt64Async(this IWriteOnlyBinaryDataAccessor accessor, long offset, Int64 value)
         {
-            await accessor.WriteAsync(offset, 8, BitConverter.GetBytes(value));
+            Memory<byte> bytes = new byte[sizeof(Int64)];
+            BinaryPrimitives.WriteInt64LittleEndian(bytes.Span, value);
+            await accessor.WriteAsync(offset, sizeof(Int64), bytes);
         }
 
         /// <summary>
@@ -174,7 +186,9 @@ namespace SkyEditor.IO
         /// <param name="value">The integer to write</param>
         public static void WriteUInt16(this IWriteOnlyBinaryDataAccessor accessor, long offset, UInt16 value)
         {
-            accessor.Write(offset, 2, BitConverter.GetBytes(value));
+            Span<byte> bytes = stackalloc byte[sizeof(UInt16)];
+            BinaryPrimitives.WriteUInt16LittleEndian(bytes, value);
+            accessor.Write(offset, sizeof(UInt16), bytes);
         }
 
         /// <summary>
@@ -184,7 +198,9 @@ namespace SkyEditor.IO
         /// <param name="value">The integer to write</param>
         public static async Task WriteUInt16Async(this IWriteOnlyBinaryDataAccessor accessor, long offset, UInt16 value)
         {
-            await accessor.WriteAsync(offset, 2, BitConverter.GetBytes(value));
+            Memory<byte> bytes = new byte[sizeof(UInt16)];
+            BinaryPrimitives.WriteInt64LittleEndian(bytes.Span, value);
+            await accessor.WriteAsync(offset, sizeof(UInt16), bytes);
         }
 
 
@@ -195,7 +211,9 @@ namespace SkyEditor.IO
         /// <param name="value">The integer to write</param>
         public static void WriteUInt32(this IWriteOnlyBinaryDataAccessor accessor, long offset, UInt32 value)
         {
-            accessor.Write(offset, 4, BitConverter.GetBytes(value));
+            Span<byte> bytes = stackalloc byte[sizeof(UInt32)];
+            BinaryPrimitives.WriteUInt32LittleEndian(bytes, value);
+            accessor.Write(offset, sizeof(UInt32), bytes);
         }
 
         /// <summary>
@@ -205,7 +223,9 @@ namespace SkyEditor.IO
         /// <param name="value">The integer to write</param>
         public static async Task WriteUInt32Async(this IWriteOnlyBinaryDataAccessor accessor, long offset, UInt32 value)
         {
-            await accessor.WriteAsync(offset, 4, BitConverter.GetBytes(value));
+            Memory<byte> bytes = new byte[sizeof(UInt32)];
+            BinaryPrimitives.WriteInt64LittleEndian(bytes.Span, value);
+            await accessor.WriteAsync(offset, sizeof(UInt32), bytes);
         }
 
         /// <summary>
@@ -215,7 +235,9 @@ namespace SkyEditor.IO
         /// <param name="value">The integer to write</param>
         public static void WriteUInt64(this IWriteOnlyBinaryDataAccessor accessor, long offset, UInt64 value)
         {
-            accessor.Write(offset, 8, BitConverter.GetBytes(value));
+            Span<byte> bytes = stackalloc byte[sizeof(UInt64)];
+            BinaryPrimitives.WriteUInt64LittleEndian(bytes, value);
+            accessor.Write(offset, sizeof(UInt64), bytes);
         }
 
         /// <summary>
@@ -225,7 +247,9 @@ namespace SkyEditor.IO
         /// <param name="value">The integer to write</param>
         public static async Task WriteUInt64Async(this IWriteOnlyBinaryDataAccessor accessor, long offset, UInt64 value)
         {
-            await accessor.WriteAsync(offset, 8, BitConverter.GetBytes(value));
+            Memory<byte> bytes = new byte[sizeof(UInt64)];
+            BinaryPrimitives.WriteUInt64LittleEndian(bytes.Span, value);
+            await accessor.WriteAsync(offset, sizeof(UInt64), bytes);
         }
 #endregion
 

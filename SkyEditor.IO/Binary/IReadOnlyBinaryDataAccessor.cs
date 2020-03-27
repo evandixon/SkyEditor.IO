@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers.Binary;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -90,7 +91,7 @@ namespace SkyEditor.IO
         /// <returns>The integer from the given location</returns>
         public static Int16 ReadInt16(this IReadOnlyBinaryDataAccessor accessor, long offset)
         {
-            return BitConverter.ToInt16(accessor.ReadSpan(offset, 2));
+            return BinaryPrimitives.ReadInt16LittleEndian(accessor.ReadSpan(offset, sizeof(Int16)));
         }
 
         /// <summary>
@@ -100,7 +101,7 @@ namespace SkyEditor.IO
         /// <returns>The integer from the given location</returns>
         public static async Task<Int16> ReadInt16Async(this IReadOnlyBinaryDataAccessor accessor, long offset)
         {
-            return BitConverter.ToInt16(await accessor.ReadArrayAsync(offset, 2), 0);
+            return BinaryPrimitives.ReadInt16LittleEndian(await accessor.ReadArrayAsync(offset, sizeof(Int16)));
         }
 
         /// <summary>
@@ -110,7 +111,7 @@ namespace SkyEditor.IO
         /// <returns>The integer from the given location</returns>
         public static Int32 ReadInt32(this IReadOnlyBinaryDataAccessor accessor, long offset)
         {
-            return BitConverter.ToInt32(accessor.ReadSpan(offset, 4));
+            return BinaryPrimitives.ReadInt32LittleEndian(accessor.ReadSpan(offset, sizeof(Int32)));
         }
 
         /// <summary>
@@ -120,7 +121,7 @@ namespace SkyEditor.IO
         /// <returns>The integer from the given location</returns>
         public static async Task<Int32> ReadInt32Async(this IReadOnlyBinaryDataAccessor accessor, long offset)
         {
-            return BitConverter.ToInt32(await accessor.ReadArrayAsync(offset, 4), 0);
+            return BinaryPrimitives.ReadInt32LittleEndian(await accessor.ReadArrayAsync(offset, sizeof(Int32)));
         }
 
         /// <summary>
@@ -130,7 +131,7 @@ namespace SkyEditor.IO
         /// <returns>The integer from the given location</returns>
         public static Int64 ReadInt64(this IReadOnlyBinaryDataAccessor accessor, long offset)
         {
-            return BitConverter.ToInt64(accessor.ReadSpan(offset, 8));
+            return BinaryPrimitives.ReadInt64LittleEndian(accessor.ReadSpan(offset, sizeof(Int64)));
         }
 
         /// <summary>
@@ -140,7 +141,7 @@ namespace SkyEditor.IO
         /// <returns>The integer from the given location</returns>
         public static async Task<Int64> ReadInt64Async(this IReadOnlyBinaryDataAccessor accessor, long offset)
         {
-            return BitConverter.ToInt64(await accessor.ReadArrayAsync(offset, 8), 0);
+            return BinaryPrimitives.ReadInt64LittleEndian(await accessor.ReadArrayAsync(offset, sizeof(Int64)));
         }
 
         /// <summary>
@@ -150,7 +151,7 @@ namespace SkyEditor.IO
         /// <returns>The integer from the given location</returns>
         public static UInt16 ReadUInt16(this IReadOnlyBinaryDataAccessor accessor, long offset)
         {
-            return BitConverter.ToUInt16(accessor.ReadSpan(offset, 2));
+            return BinaryPrimitives.ReadUInt16LittleEndian(accessor.ReadSpan(offset, sizeof(UInt16)));
         }
 
         /// <summary>
@@ -160,7 +161,7 @@ namespace SkyEditor.IO
         /// <returns>The integer from the given location</returns>
         public static async Task<UInt16> ReadUInt16Async(this IReadOnlyBinaryDataAccessor accessor, long offset)
         {
-            return BitConverter.ToUInt16(await accessor.ReadArrayAsync(offset, 2), 0);
+            return BinaryPrimitives.ReadUInt16LittleEndian(await accessor.ReadArrayAsync(offset, sizeof(UInt16)));
         }
 
         /// <summary>
@@ -170,7 +171,7 @@ namespace SkyEditor.IO
         /// <returns>The integer from the given location</returns>
         public static UInt32 ReadUInt32(this IReadOnlyBinaryDataAccessor accessor, long offset)
         {
-            return BitConverter.ToUInt32(accessor.ReadSpan(offset, 4));
+            return BinaryPrimitives.ReadUInt32LittleEndian(accessor.ReadSpan(offset, sizeof(UInt32)));
         }
 
         /// <summary>
@@ -180,7 +181,7 @@ namespace SkyEditor.IO
         /// <returns>The integer from the given location</returns>
         public static async Task<UInt32> ReadUInt32Async(this IReadOnlyBinaryDataAccessor accessor, long offset)
         {
-            return BitConverter.ToUInt32(await accessor.ReadArrayAsync(offset, 4), 0);
+            return BinaryPrimitives.ReadUInt32LittleEndian(await accessor.ReadArrayAsync(offset, sizeof(UInt32)));
         }
 
         /// <summary>
@@ -190,7 +191,7 @@ namespace SkyEditor.IO
         /// <returns>The integer from the given location</returns>
         public static UInt64 ReadUInt64(this IReadOnlyBinaryDataAccessor accessor, long offset)
         {
-            return BitConverter.ToUInt64(accessor.ReadSpan(offset, 8));
+            return BinaryPrimitives.ReadUInt64LittleEndian(accessor.ReadSpan(offset, sizeof(UInt64)));
         }
 
         /// <summary>
@@ -200,7 +201,7 @@ namespace SkyEditor.IO
         /// <returns>The integer from the given location</returns>
         public static async Task<UInt64> ReadUInt64Async(this IReadOnlyBinaryDataAccessor accessor, long offset)
         {
-            return BitConverter.ToUInt64(await accessor.ReadArrayAsync(offset, 8), 0);
+            return BinaryPrimitives.ReadUInt64LittleEndian(await accessor.ReadArrayAsync(offset, sizeof(UInt64)));
         }
 #endregion
 
@@ -213,9 +214,7 @@ namespace SkyEditor.IO
         /// <returns>The integer from the given location</returns>
         public static Int16 ReadInt16BigEndian(this IReadOnlyBinaryDataAccessor accessor, long offset)
         {
-            var bytes = accessor.ReadArray(offset, 2);
-            Array.Reverse(bytes);
-            return BitConverter.ToInt16(bytes, 0);
+            return BinaryPrimitives.ReadInt16BigEndian(accessor.ReadArray(offset, sizeof(Int16)));
         }
 
         /// <summary>
@@ -225,9 +224,7 @@ namespace SkyEditor.IO
         /// <returns>The integer from the given location</returns>
         public static async Task<Int16> ReadInt16BigEndianAsync(this IReadOnlyBinaryDataAccessor accessor, long offset)
         {
-            var bytes = await accessor.ReadArrayAsync(offset, 2);
-            Array.Reverse(bytes);
-            return BitConverter.ToInt16(bytes, 0);
+            return BinaryPrimitives.ReadInt16BigEndian(await accessor.ReadArrayAsync(offset, sizeof(Int16)));
         }
 
         /// <summary>
@@ -237,9 +234,7 @@ namespace SkyEditor.IO
         /// <returns>The integer from the given location</returns>
         public static Int32 ReadInt32BigEndian(this IReadOnlyBinaryDataAccessor accessor, long offset)
         {
-            var bytes = accessor.ReadArray(offset, 4);
-            Array.Reverse(bytes);
-            return BitConverter.ToInt32(bytes, 0);
+            return BinaryPrimitives.ReadInt32BigEndian(accessor.ReadArray(offset, sizeof(Int32)));
         }
 
         /// <summary>
@@ -249,9 +244,7 @@ namespace SkyEditor.IO
         /// <returns>The integer from the given location</returns>
         public static async Task<Int32> ReadInt32BigEndianAsync(this IReadOnlyBinaryDataAccessor accessor, long offset)
         {
-            var bytes = await accessor.ReadArrayAsync(offset, 4);
-            Array.Reverse(bytes);
-            return BitConverter.ToInt32(bytes, 0);
+            return BinaryPrimitives.ReadInt32BigEndian(await accessor.ReadArrayAsync(offset, sizeof(Int32)));
         }
 
         /// <summary>
@@ -261,9 +254,7 @@ namespace SkyEditor.IO
         /// <returns>The integer from the given location</returns>
         public static Int64 ReadInt64BigEndian(this IReadOnlyBinaryDataAccessor accessor, long offset)
         {
-            var bytes = accessor.ReadArray(offset, 8);
-            Array.Reverse(bytes);
-            return BitConverter.ToInt64(bytes, 0);
+            return BinaryPrimitives.ReadInt64BigEndian(accessor.ReadArray(offset, sizeof(Int64)));
         }
 
         /// <summary>
@@ -273,9 +264,7 @@ namespace SkyEditor.IO
         /// <returns>The integer from the given location</returns>
         public static async Task<Int64> ReadInt64BigEndianAsync(this IReadOnlyBinaryDataAccessor accessor, long offset)
         {
-            var bytes = await accessor.ReadArrayAsync(offset, 8);
-            Array.Reverse(bytes);
-            return BitConverter.ToInt64(bytes, 0);
+            return BinaryPrimitives.ReadInt64BigEndian(await accessor.ReadArrayAsync(offset, sizeof(Int64)));
         }
 
         /// <summary>
@@ -285,9 +274,7 @@ namespace SkyEditor.IO
         /// <returns>The integer from the given location</returns>
         public static UInt16 ReadUInt16BigEndian(this IReadOnlyBinaryDataAccessor accessor, long offset)
         {
-            var bytes = accessor.ReadArray(offset, 2);
-            Array.Reverse(bytes);
-            return BitConverter.ToUInt16(bytes, 0);
+            return BinaryPrimitives.ReadUInt16BigEndian(accessor.ReadArray(offset, sizeof(UInt16)));
         }
 
         /// <summary>
@@ -297,9 +284,7 @@ namespace SkyEditor.IO
         /// <returns>The integer from the given location</returns>
         public static async Task<UInt16> ReadUInt16BigEndianAsync(this IReadOnlyBinaryDataAccessor accessor, long offset)
         {
-            var bytes = await accessor.ReadArrayAsync(offset, 2);
-            Array.Reverse(bytes);
-            return BitConverter.ToUInt16(bytes, 0);
+            return BinaryPrimitives.ReadUInt16BigEndian(await accessor.ReadArrayAsync(offset, sizeof(UInt16)));
         }
 
         /// <summary>
@@ -309,9 +294,7 @@ namespace SkyEditor.IO
         /// <returns>The integer from the given location</returns>
         public static UInt32 ReadUInt32BigEndian(this IReadOnlyBinaryDataAccessor accessor, long offset)
         {
-            var bytes = accessor.ReadArray(offset, 4);
-            Array.Reverse(bytes);
-            return BitConverter.ToUInt32(bytes, 0);
+            return BinaryPrimitives.ReadUInt32BigEndian(accessor.ReadArray(offset,sizeof(UInt32)));
         }
 
         /// <summary>
@@ -321,9 +304,7 @@ namespace SkyEditor.IO
         /// <returns>The integer from the given location</returns>
         public static async Task<UInt32> ReadUInt32BigEndianAsync(this IReadOnlyBinaryDataAccessor accessor, long offset)
         {
-            var bytes = await accessor.ReadArrayAsync(offset, 4);
-            Array.Reverse(bytes);
-            return BitConverter.ToUInt32(bytes, 0);
+            return BinaryPrimitives.ReadUInt32BigEndian(await accessor.ReadArrayAsync(offset, sizeof(UInt32)));
         }
 
         /// <summary>
@@ -333,9 +314,7 @@ namespace SkyEditor.IO
         /// <returns>The integer from the given location</returns>
         public static UInt64 ReadUInt64BigEndian(this IReadOnlyBinaryDataAccessor accessor, long offset)
         {
-            var bytes = accessor.ReadArray(offset, 8);
-            Array.Reverse(bytes);
-            return BitConverter.ToUInt64(bytes, 0);
+            return BinaryPrimitives.ReadUInt64BigEndian(accessor.ReadArray(offset, sizeof(UInt64)));
         }
 
         /// <summary>
@@ -345,9 +324,7 @@ namespace SkyEditor.IO
         /// <returns>The integer from the given location</returns>
         public static async Task<UInt64> ReadUInt64BigEndianAsync(this IReadOnlyBinaryDataAccessor accessor, long offset)
         {
-            var bytes = await accessor.ReadArrayAsync(offset, 8);
-            Array.Reverse(bytes);
-            return BitConverter.ToUInt64(bytes, 0);
+            return BinaryPrimitives.ReadUInt64BigEndian(await accessor.ReadArrayAsync(offset, sizeof(UInt64)));
         }
 #endregion
 
