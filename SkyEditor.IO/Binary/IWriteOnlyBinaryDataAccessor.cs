@@ -3,7 +3,7 @@ using System.Buffers.Binary;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SkyEditor.IO
+namespace SkyEditor.IO.Binary
 {
     /// <summary>
     /// Provides write access to binary data.
@@ -82,6 +82,15 @@ namespace SkyEditor.IO
         /// <param name="length">Upper bound of the data to write</param>
         /// <param name="value">Data to write</param>
         Task WriteAsync(long index, int length, ReadOnlyMemory<byte> value);
+        
+        IWriteOnlyBinaryDataAccessor Slice(long offset, long length)
+        {
+            return this switch
+            {
+                WriteOnlyBinaryDataAccessorReference reference => new WriteOnlyBinaryDataAccessorReference(reference, offset, length),
+                _ => new WriteOnlyBinaryDataAccessorReference(this, offset, length)
+            };
+        }
      }
 
     public static class IWriteOnlyBinaryDataAccessorExtensions
@@ -102,6 +111,26 @@ namespace SkyEditor.IO
         /// <param name="index">Index of the data to write</param>
         /// <param name="value">Data to write</param>
         public static async Task WriteAsync(this IWriteOnlyBinaryDataAccessor accessor, long index, byte[] value)
+        {
+            await accessor.WriteAsync(index, value.Length, value);
+        }
+
+        /// <summary>
+        /// Writes all of the given data to the desired index
+        /// </summary>
+        /// <param name="index">Index of the data to write</param>
+        /// <param name="value">Data to write</param>
+        public static void Write(this IWriteOnlyBinaryDataAccessor accessor, long index, ReadOnlySpan<byte> value)
+        {
+            accessor.Write(index, value.Length, value);
+        }
+
+        /// <summary>
+        /// Writes all of the given data to the desired index
+        /// </summary>
+        /// <param name="index">Index of the data to write</param>
+        /// <param name="value">Data to write</param>
+        public static async Task WriteAsync(this IWriteOnlyBinaryDataAccessor accessor, long index, ReadOnlyMemory<byte> value)
         {
             await accessor.WriteAsync(index, value.Length, value);
         }

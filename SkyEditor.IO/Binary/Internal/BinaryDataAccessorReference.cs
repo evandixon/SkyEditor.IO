@@ -1,16 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace SkyEditor.IO.Binary
 {
     /// <summary>
-    /// Provides a view to a subset of a <see cref="IReadOnlyBinaryDataAccessor"/> or other <see cref="ReadOnlyBinaryDataAccessorReference"/>
+    /// Provides a view to a subset of a <see cref="IBinaryDataAccessor"/> or other <see cref="BinaryDataAccessorReference"/>
     /// </summary>
-    public class ReadOnlyBinaryDataAccessorReference : IReadOnlyBinaryDataAccessor
+    internal class BinaryDataAccessorReference : IBinaryDataAccessor
     {
-        public ReadOnlyBinaryDataAccessorReference(IReadOnlyBinaryDataAccessor data, long offset, long length)
+        public BinaryDataAccessorReference(IBinaryDataAccessor data, long offset, long length)
         {
             if (offset < 0)
             {
@@ -26,7 +24,7 @@ namespace SkyEditor.IO.Binary
             Length = length;
         }
 
-        public ReadOnlyBinaryDataAccessorReference(ReadOnlyBinaryDataAccessorReference reference, long offset, long length)
+        public BinaryDataAccessorReference(BinaryDataAccessorReference reference, long offset, long length)
         {
             if (reference == null)
             {
@@ -46,7 +44,7 @@ namespace SkyEditor.IO.Binary
             Length = length;
         }
 
-        private IReadOnlyBinaryDataAccessor Data { get; }
+        private IBinaryDataAccessor Data { get; }
 
         private long Offset { get; set; }
 
@@ -121,28 +119,75 @@ namespace SkyEditor.IO.Binary
         {
             return await Data.ReadMemoryAsync(Offset + index, (int)Math.Min(Length, length));
         }
-    }
 
-    public static class IReadOnlyBinaryDataAccessorExtensions
-    {
-        /// <summary>
-        /// Gets a view on top of the current data
-        /// </summary>
-        /// <param name="data">Data to reference</param>
-        /// <param name="offset">Offset of the view</param>
-        /// <param name="length">Maximum length of the view</param>
-        /// <returns>A view on top of the data</returns>
-        public static ReadOnlyBinaryDataAccessorReference GetReadOnlyDataReference(this IReadOnlyBinaryDataAccessor data, long offset, long length)
+        public void Write(byte[] value)
         {
-            if (data is ReadOnlyBinaryDataAccessorReference reference)
+            if (Length > int.MaxValue)
             {
-                // Use the overload that allows lesser chaining
-                return new ReadOnlyBinaryDataAccessorReference(reference, offset, length);
+                throw new ArgumentException(Properties.Resources.Binary_ErrorLengthTooLarge);
             }
-            else
-            {
-                return new ReadOnlyBinaryDataAccessorReference(data, offset, length);
-            }
+
+            Data.Write(Offset, (int)Length, value);
         }
-    }
+
+        public void Write(ReadOnlySpan<byte> value)
+        {
+            if (Length > int.MaxValue)
+            {
+                throw new ArgumentException(Properties.Resources.Binary_ErrorLengthTooLarge);
+            }
+
+            Data.Write(Offset, (int)Length, value);
+        }
+
+        public async Task WriteAsync(byte[] value)
+        {
+            if (Length > int.MaxValue)
+            {
+                throw new ArgumentException(Properties.Resources.Binary_ErrorLengthTooLarge);
+            }
+
+            await Data.WriteAsync(Offset, (int)Length, value);
+        }
+
+        public async Task WriteAsync(ReadOnlyMemory<byte> value)
+        {
+            if (Length > int.MaxValue)
+            {
+                throw new ArgumentException(Properties.Resources.Binary_ErrorLengthTooLarge);
+            }
+
+            await Data.WriteAsync(Offset, (int)Length, value);
+        }
+
+        public void Write(long index, byte value)
+        {
+            Data.Write(Offset + index, value);
+        }
+
+        public void Write(long index, int length, byte[] value)
+        {
+            Data.Write(Offset + index, (int)Math.Min(length, Length), value);
+        }
+
+        public void Write(long index, int length, ReadOnlySpan<byte> value)
+        {
+            Data.Write(Offset + index, (int)Math.Min(length, Length), value);
+        }
+
+        public async Task WriteAsync(long index, byte value)
+        {
+            await Data.WriteAsync(Offset + index, value);
+        }
+
+        public async Task WriteAsync(long index, int length, byte[] value)
+        {
+            await Data.WriteAsync(Offset + index, (int)Math.Min(length, Length), value);
+        }
+
+        public async Task WriteAsync(long index, int length, ReadOnlyMemory<byte> value)
+        {
+            await Data.WriteAsync(Offset + index, (int)Math.Min(length, Length), value);
+        }
+     }
 }

@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Buffers.Binary;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SkyEditor.IO
+namespace SkyEditor.IO.Binary
 {
     /// <summary>
     /// Provides read access to binary data
@@ -78,6 +79,15 @@ namespace SkyEditor.IO
         /// <param name="index">Index of the desired data</param>
         /// <param name="length">Length of data to read</param>
         Task<ReadOnlyMemory<byte>> ReadMemoryAsync(long index, int length);
+
+        IReadOnlyBinaryDataAccessor Slice(long offset, long length)
+        {
+            return this switch
+            {
+                ReadOnlyBinaryDataAccessorReference reference => new ReadOnlyBinaryDataAccessorReference(reference, offset, length),
+                _ => new ReadOnlyBinaryDataAccessorReference(this, offset, length)
+            };
+        }
     }
 
     public static class IReadOnlyBinaryDataAccessorExtensions

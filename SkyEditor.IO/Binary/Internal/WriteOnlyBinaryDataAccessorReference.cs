@@ -8,7 +8,7 @@ namespace SkyEditor.IO.Binary
     /// <summary>
     /// Provides a view to a subset of a <see cref="IWriteOnlyBinaryDataAccessor"/> or other <see cref="WriteOnlyBinaryDataAccessorReference"/>
     /// </summary>
-    public class WriteOnlyBinaryDataAccessorReference : IWriteOnlyBinaryDataAccessor
+    internal class WriteOnlyBinaryDataAccessorReference : IWriteOnlyBinaryDataAccessor
     {
         public WriteOnlyBinaryDataAccessorReference(IWriteOnlyBinaryDataAccessor data, long offset, long length)
         {
@@ -156,26 +156,4 @@ namespace SkyEditor.IO.Binary
             await Data.WriteAsync(Offset + index, length, value);
         }
      }
-
-    public static class IWriteOnlyBinaryDataAccessorExtensions
-    {
-        /// <summary>
-        /// Gets a view on top of the current data
-        /// </summary>
-        /// <param name="data">Data to reference</param>
-        /// <param name="offset">Offset of the view</param>
-        /// <param name="length">Maximum length of the view</param>
-        /// <returns>A view on top of the data</returns>
-        public static WriteOnlyBinaryDataAccessorReference GetWriteOnlyDataReference(this IWriteOnlyBinaryDataAccessor data, long offset, long length)
-        {
-            if (data is WriteOnlyBinaryDataAccessorReference reference)
-            {
-                return new WriteOnlyBinaryDataAccessorReference(reference, offset, length);
-            }
-            else
-            {
-                return new WriteOnlyBinaryDataAccessorReference(data, offset, length);
-            }
-        }
-    }
 }
