@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers.Binary;
 using System.Threading.Tasks;
 
 namespace SkyEditor.IO.Binary.Internal
@@ -185,6 +186,54 @@ namespace SkyEditor.IO.Binary.Internal
             }
 
             Array.Resize(ref _rawData, (int)length);
+        }
+
+        public void WriteInt16(long index, short value) => BinaryPrimitives.WriteInt16LittleEndian(_rawData[checked((int)index)..], value);
+
+        public void WriteInt32(long index, int value) => BinaryPrimitives.WriteInt32LittleEndian(_rawData[checked((int)index)..], value);
+
+        public void WriteInt64(long index, long value) => BinaryPrimitives.WriteInt64LittleEndian(_rawData[checked((int)index)..], value);
+
+        public void WriteUInt16(long index, ushort value) => BinaryPrimitives.WriteUInt16LittleEndian(_rawData[checked((int)index)..], value);
+
+        public void WriteUInt32(long index, uint value) => BinaryPrimitives.WriteUInt32LittleEndian(_rawData[checked((int)index)..], value);
+
+        public void WriteUInt64(long index, ulong value) => BinaryPrimitives.WriteUInt64LittleEndian(_rawData[checked((int)index)..], value);
+
+        public Task WriteInt16Async(long index, short value)
+        {
+            WriteInt16(index, value);
+            return Task.CompletedTask;
+        }
+
+        public Task WriteInt32Async(long index, int value)
+        {
+            WriteInt32(index, value);
+            return Task.CompletedTask;
+        }
+
+        public Task WriteInt64Async(long index, long value)
+        {
+            WriteInt64(index, value);
+            return Task.CompletedTask;
+        }
+
+        public Task WriteUInt16Async(long index, ushort value)
+        {
+            WriteUInt16(index, value);
+            return Task.CompletedTask;
+        }
+
+        public Task WriteUInt32Async(long index, uint value)
+        {
+            WriteUInt32(index, value);
+            return Task.CompletedTask;
+        }
+
+        public Task WriteUInt64Async(long index, ulong value)
+        {
+            WriteUInt64(index, value);
+            return Task.CompletedTask;
         }
     }
 }
