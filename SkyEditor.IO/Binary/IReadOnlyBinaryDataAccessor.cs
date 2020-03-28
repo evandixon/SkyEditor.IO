@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Buffers.Binary;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SkyEditor.IO
+namespace SkyEditor.IO.Binary
 {
     /// <summary>
     /// Provides read access to binary data
@@ -24,26 +24,20 @@ namespace SkyEditor.IO
         /// </summary>
         byte[] ReadArray();
 
-#if ENABLE_SPAN_AND_MEMORY
-
         /// <summary>
         /// Reads all of the available data
         /// </summary>
         ReadOnlySpan<byte> ReadSpan();
-
-#endif
 
         /// <summary>
         /// Reads all of the available data
         /// </summary>
         Task<byte[]> ReadArrayAsync();
 
-#if ENABLE_SPAN_AND_MEMORY
         /// <summary>
         /// Reads all of the available data
         /// </summary>
         Task<ReadOnlyMemory<byte>> ReadMemoryAsync();
-#endif
 
         /// <summary>
         /// Reads a byte at the given index
@@ -64,14 +58,12 @@ namespace SkyEditor.IO
         /// <param name="length"></param>
         byte[] ReadArray(long index, int length);
 
-#if ENABLE_SPAN_AND_MEMORY
         /// <summary>
         /// Reads a subset of the available data
         /// </summary>
         /// <param name="index">Index of the desired data</param>
         /// <param name="length"></param>
         ReadOnlySpan<byte> ReadSpan(long index, int length);
-#endif
 
         /// <summary>
         /// Reads a subset of the available data
@@ -80,18 +72,22 @@ namespace SkyEditor.IO
         /// <param name="length">Length of data to read</param>
         Task<byte[]> ReadArrayAsync(long index, int length);
 
-#if ENABLE_SPAN_AND_MEMORY
         /// <summary>
         /// Reads a subset of the available data
         /// </summary>
         /// <param name="index">Index of the desired data</param>
         /// <param name="length">Length of data to read</param>
         Task<ReadOnlyMemory<byte>> ReadMemoryAsync(long index, int length);
-#endif
-    }
 
-    public static class IReadOnlyBinaryDataAccessorExtensions
-    {
+        IReadOnlyBinaryDataAccessor Slice(long offset, long length)
+        {
+            return this switch
+            {
+                ReadOnlyBinaryDataAccessorReference reference => new ReadOnlyBinaryDataAccessorReference(reference, offset, length),
+                _ => new ReadOnlyBinaryDataAccessorReference(this, offset, length)
+            };
+        }
+
 #region Integer Reads
 
         /// <summary>
@@ -99,23 +95,17 @@ namespace SkyEditor.IO
         /// </summary>
         /// <param name="offset">Offset of the integer to read.</param>
         /// <returns>The integer from the given location</returns>
-        public static Int16 ReadInt16(this IReadOnlyBinaryDataAccessor accessor, long offset)
-        {
-#if ENABLE_SPAN_AND_MEMORY
-            return BitConverter.ToInt16(accessor.ReadSpan(offset, 2));
-#else
-            return BitConverter.ToInt16(accessor.ReadArray(offset, 2), 0);
-#endif
-        }
+        short ReadInt16(long offset) => BinaryPrimitives.ReadInt16LittleEndian(ReadSpan(offset, sizeof(short)));
 
         /// <summary>
         /// Reads a signed 16 bit little endian integer
         /// </summary>
         /// <param name="offset">Offset of the integer to read.</param>
         /// <returns>The integer from the given location</returns>
-        public static async Task<Int16> ReadInt16Async(this IReadOnlyBinaryDataAccessor accessor, long offset)
+        async Task<short> ReadInt16Async(long offset)
         {
-            return BitConverter.ToInt16(await accessor.ReadArrayAsync(offset, 2), 0);
+            ReadOnlyMemory<byte> bytes = await ReadMemoryAsync(offset, sizeof(short));
+            return BinaryPrimitives.ReadInt16LittleEndian(bytes.Span);
         }
 
         /// <summary>
@@ -123,23 +113,17 @@ namespace SkyEditor.IO
         /// </summary>
         /// <param name="offset">Offset of the integer to read.</param>
         /// <returns>The integer from the given location</returns>
-        public static Int32 ReadInt32(this IReadOnlyBinaryDataAccessor accessor, long offset)
-        {
-#if ENABLE_SPAN_AND_MEMORY
-            return BitConverter.ToInt32(accessor.ReadSpan(offset, 4));
-#else
-            return BitConverter.ToInt32(accessor.ReadArray(offset, 4), 0);
-#endif
-        }
+        int ReadInt32(long offset) => BinaryPrimitives.ReadInt32LittleEndian(ReadSpan(offset, sizeof(int)));
 
         /// <summary>
         /// Reads a signed 32 bit little endian integer
         /// </summary>
         /// <param name="offset">Offset of the integer to read.</param>
         /// <returns>The integer from the given location</returns>
-        public static async Task<Int32> ReadInt32Async(this IReadOnlyBinaryDataAccessor accessor, long offset)
+        async Task<int> ReadInt32Async(long offset)
         {
-            return BitConverter.ToInt32(await accessor.ReadArrayAsync(offset, 4), 0);
+            ReadOnlyMemory<byte> bytes = await ReadMemoryAsync(offset, sizeof(int));
+            return BinaryPrimitives.ReadInt32LittleEndian(bytes.Span);
         }
 
         /// <summary>
@@ -147,23 +131,17 @@ namespace SkyEditor.IO
         /// </summary>
         /// <param name="offset">Offset of the integer to read.</param>
         /// <returns>The integer from the given location</returns>
-        public static Int64 ReadInt64(this IReadOnlyBinaryDataAccessor accessor, long offset)
-        {
-#if ENABLE_SPAN_AND_MEMORY
-            return BitConverter.ToInt64(accessor.ReadSpan(offset, 8));
-#else
-            return BitConverter.ToInt64(accessor.ReadArray(offset, 8), 0);
-#endif
-        }
+        long ReadInt64(long offset) => BinaryPrimitives.ReadInt64LittleEndian(ReadSpan(offset, sizeof(long)));
 
         /// <summary>
         /// Reads a signed 64 bit little endian integer
         /// </summary>
         /// <param name="offset">Offset of the integer to read.</param>
         /// <returns>The integer from the given location</returns>
-        public static async Task<Int64> ReadInt64Async(this IReadOnlyBinaryDataAccessor accessor, long offset)
+        async Task<long> ReadInt64Async(long offset)
         {
-            return BitConverter.ToInt64(await accessor.ReadArrayAsync(offset, 8), 0);
+            ReadOnlyMemory<byte> bytes = await ReadMemoryAsync(offset, sizeof(long));
+            return BinaryPrimitives.ReadInt64LittleEndian(bytes.Span);
         }
 
         /// <summary>
@@ -171,23 +149,17 @@ namespace SkyEditor.IO
         /// </summary>
         /// <param name="offset">Offset of the integer to read.</param>
         /// <returns>The integer from the given location</returns>
-        public static UInt16 ReadUInt16(this IReadOnlyBinaryDataAccessor accessor, long offset)
-        {
-#if ENABLE_SPAN_AND_MEMORY
-            return BitConverter.ToUInt16(accessor.ReadSpan(offset, 2));
-#else
-            return BitConverter.ToUInt16(accessor.ReadArray(offset, 2), 0);
-#endif
-        }
+        ushort ReadUInt16(long offset) => BinaryPrimitives.ReadUInt16LittleEndian(ReadSpan(offset, sizeof(ushort)));
 
         /// <summary>
         /// Reads an unsigned 16 bit little endian integer
         /// </summary>
         /// <param name="offset">Offset of the integer to read.</param>
         /// <returns>The integer from the given location</returns>
-        public static async Task<UInt16> ReadUInt16Async(this IReadOnlyBinaryDataAccessor accessor, long offset)
+        async Task<ushort> ReadUInt16Async(long offset)
         {
-            return BitConverter.ToUInt16(await accessor.ReadArrayAsync(offset, 2), 0);
+            ReadOnlyMemory<byte> bytes = await ReadMemoryAsync(offset, sizeof(ushort));
+            return BinaryPrimitives.ReadUInt16LittleEndian(bytes.Span);
         }
 
         /// <summary>
@@ -195,23 +167,17 @@ namespace SkyEditor.IO
         /// </summary>
         /// <param name="offset">Offset of the integer to read.</param>
         /// <returns>The integer from the given location</returns>
-        public static UInt32 ReadUInt32(this IReadOnlyBinaryDataAccessor accessor, long offset)
-        {
-#if ENABLE_SPAN_AND_MEMORY
-            return BitConverter.ToUInt32(accessor.ReadSpan(offset, 4));
-#else
-            return BitConverter.ToUInt32(accessor.ReadArray(offset, 4), 0);
-#endif
-        }
+        uint ReadUInt32(long offset) => BinaryPrimitives.ReadUInt32LittleEndian(ReadSpan(offset, sizeof(uint)));
 
         /// <summary>
         /// Reads an unsigned 32 bit little endian integer
         /// </summary>
         /// <param name="offset">Offset of the integer to read.</param>
         /// <returns>The integer from the given location</returns>
-        public static async Task<UInt32> ReadUInt32Async(this IReadOnlyBinaryDataAccessor accessor, long offset)
+        async Task<uint> ReadUInt32Async(long offset)
         {
-            return BitConverter.ToUInt32(await accessor.ReadArrayAsync(offset, 4), 0);
+            ReadOnlyMemory<byte> bytes = await ReadMemoryAsync(offset, sizeof(uint));
+            return BinaryPrimitives.ReadUInt32LittleEndian(bytes.Span);
         }
 
         /// <summary>
@@ -219,23 +185,17 @@ namespace SkyEditor.IO
         /// </summary>
         /// <param name="offset">Offset of the integer to read.</param>
         /// <returns>The integer from the given location</returns>
-        public static UInt64 ReadUInt64(this IReadOnlyBinaryDataAccessor accessor, long offset)
-        {
-#if ENABLE_SPAN_AND_MEMORY
-            return BitConverter.ToUInt64(accessor.ReadSpan(offset, 8));
-#else
-            return BitConverter.ToUInt64(accessor.ReadArray(offset, 8), 0);
-#endif
-        }
+        ulong ReadUInt64(long offset) => BinaryPrimitives.ReadUInt64LittleEndian(ReadSpan(offset, sizeof(ulong)));
 
         /// <summary>
         /// Reads an unsigned 64 bit little endian integer
         /// </summary>
         /// <param name="offset">Offset of the integer to read.</param>
         /// <returns>The integer from the given location</returns>
-        public static async Task<UInt64> ReadUInt64Async(this IReadOnlyBinaryDataAccessor accessor, long offset)
+        async Task<ulong> ReadUInt64Async(long offset)
         {
-            return BitConverter.ToUInt64(await accessor.ReadArrayAsync(offset, 8), 0);
+            ReadOnlyMemory<byte> bytes = await ReadMemoryAsync(offset, sizeof(ulong));
+            return BinaryPrimitives.ReadUInt64LittleEndian(bytes.Span);
         }
 #endregion
 
@@ -246,23 +206,17 @@ namespace SkyEditor.IO
         /// </summary>
         /// <param name="offset">Offset of the integer to read.</param>
         /// <returns>The integer from the given location</returns>
-        public static Int16 ReadInt16BigEndian(this IReadOnlyBinaryDataAccessor accessor, long offset)
-        {
-            var bytes = accessor.ReadArray(offset, 2);
-            Array.Reverse(bytes);
-            return BitConverter.ToInt16(bytes, 0);
-        }
+        short ReadInt16BigEndian(long offset) => BinaryPrimitives.ReadInt16BigEndian(ReadSpan(offset, sizeof(short)));
 
         /// <summary>
         /// Reads a signed 16 bit big endian integer
         /// </summary>
         /// <param name="offset">Offset of the integer to read.</param>
         /// <returns>The integer from the given location</returns>
-        public static async Task<Int16> ReadInt16BigEndianAsync(this IReadOnlyBinaryDataAccessor accessor, long offset)
+        async Task<short> ReadInt16BigEndianAsync(long offset)
         {
-            var bytes = await accessor.ReadArrayAsync(offset, 2);
-            Array.Reverse(bytes);
-            return BitConverter.ToInt16(bytes, 0);
+            ReadOnlyMemory<byte> bytes = await ReadMemoryAsync(offset, sizeof(short));
+            return BinaryPrimitives.ReadInt16BigEndian(bytes.Span);
         }
 
         /// <summary>
@@ -270,23 +224,17 @@ namespace SkyEditor.IO
         /// </summary>
         /// <param name="offset">Offset of the integer to read.</param>
         /// <returns>The integer from the given location</returns>
-        public static Int32 ReadInt32BigEndian(this IReadOnlyBinaryDataAccessor accessor, long offset)
-        {
-            var bytes = accessor.ReadArray(offset, 4);
-            Array.Reverse(bytes);
-            return BitConverter.ToInt32(bytes, 0);
-        }
+        int ReadInt32BigEndian(long offset) => BinaryPrimitives.ReadInt32BigEndian(ReadSpan(offset, sizeof(int)));
 
         /// <summary>
         /// Reads a signed 32 bit big endian integer
         /// </summary>
         /// <param name="offset">Offset of the integer to read.</param>
         /// <returns>The integer from the given location</returns>
-        public static async Task<Int32> ReadInt32BigEndianAsync(this IReadOnlyBinaryDataAccessor accessor, long offset)
+        async Task<int> ReadInt32BigEndianAsync(long offset)
         {
-            var bytes = await accessor.ReadArrayAsync(offset, 4);
-            Array.Reverse(bytes);
-            return BitConverter.ToInt32(bytes, 0);
+            ReadOnlyMemory<byte> bytes = await ReadMemoryAsync(offset, sizeof(int));
+            return BinaryPrimitives.ReadInt32BigEndian(bytes.Span);
         }
 
         /// <summary>
@@ -294,23 +242,17 @@ namespace SkyEditor.IO
         /// </summary>
         /// <param name="offset">Offset of the integer to read.</param>
         /// <returns>The integer from the given location</returns>
-        public static Int64 ReadInt64BigEndian(this IReadOnlyBinaryDataAccessor accessor, long offset)
-        {
-            var bytes = accessor.ReadArray(offset, 8);
-            Array.Reverse(bytes);
-            return BitConverter.ToInt64(bytes, 0);
-        }
+        long ReadInt64BigEndian(long offset) => BinaryPrimitives.ReadInt64BigEndian(ReadSpan(offset, sizeof(long)));
 
         /// <summary>
         /// Reads a signed 64 bit big endian integer
         /// </summary>
         /// <param name="offset">Offset of the integer to read.</param>
         /// <returns>The integer from the given location</returns>
-        public static async Task<Int64> ReadInt64BigEndianAsync(this IReadOnlyBinaryDataAccessor accessor, long offset)
+        async Task<long> ReadInt64BigEndianAsync(long offset)
         {
-            var bytes = await accessor.ReadArrayAsync(offset, 8);
-            Array.Reverse(bytes);
-            return BitConverter.ToInt64(bytes, 0);
+            ReadOnlyMemory<byte> bytes = await ReadMemoryAsync(offset, sizeof(long));
+            return BinaryPrimitives.ReadInt64BigEndian(bytes.Span);
         }
 
         /// <summary>
@@ -318,23 +260,17 @@ namespace SkyEditor.IO
         /// </summary>
         /// <param name="offset">Offset of the integer to read.</param>
         /// <returns>The integer from the given location</returns>
-        public static UInt16 ReadUInt16BigEndian(this IReadOnlyBinaryDataAccessor accessor, long offset)
-        {
-            var bytes = accessor.ReadArray(offset, 2);
-            Array.Reverse(bytes);
-            return BitConverter.ToUInt16(bytes, 0);
-        }
+        ushort ReadUInt16BigEndian(long offset) => BinaryPrimitives.ReadUInt16BigEndian(ReadSpan(offset, sizeof(ushort)));
 
         /// <summary>
         /// Reads an unsigned 16 bit big endian integer
         /// </summary>
         /// <param name="offset">Offset of the integer to read.</param>
         /// <returns>The integer from the given location</returns>
-        public static async Task<UInt16> ReadUInt16BigEndianAsync(this IReadOnlyBinaryDataAccessor accessor, long offset)
+        async Task<ushort> ReadUInt16BigEndianAsync(long offset)
         {
-            var bytes = await accessor.ReadArrayAsync(offset, 2);
-            Array.Reverse(bytes);
-            return BitConverter.ToUInt16(bytes, 0);
+            ReadOnlyMemory<byte> bytes = await ReadMemoryAsync(offset, sizeof(ushort));
+            return BinaryPrimitives.ReadUInt16BigEndian(bytes.Span);
         }
 
         /// <summary>
@@ -342,23 +278,17 @@ namespace SkyEditor.IO
         /// </summary>
         /// <param name="offset">Offset of the integer to read.</param>
         /// <returns>The integer from the given location</returns>
-        public static UInt32 ReadUInt32BigEndian(this IReadOnlyBinaryDataAccessor accessor, long offset)
-        {
-            var bytes = accessor.ReadArray(offset, 4);
-            Array.Reverse(bytes);
-            return BitConverter.ToUInt32(bytes, 0);
-        }
+        uint ReadUInt32BigEndian(long offset) => BinaryPrimitives.ReadUInt32BigEndian(ReadSpan(offset,sizeof(uint)));
 
         /// <summary>
         /// Reads an unsigned 32 bit big endian integer
         /// </summary>
         /// <param name="offset">Offset of the integer to read.</param>
         /// <returns>The integer from the given location</returns>
-        public static async Task<UInt32> ReadUInt32BigEndianAsync(this IReadOnlyBinaryDataAccessor accessor, long offset)
+        async Task<uint> ReadUInt32BigEndianAsync(long offset)
         {
-            var bytes = await accessor.ReadArrayAsync(offset, 4);
-            Array.Reverse(bytes);
-            return BitConverter.ToUInt32(bytes, 0);
+            ReadOnlyMemory<byte> bytes = await ReadMemoryAsync(offset, sizeof(uint));
+            return BinaryPrimitives.ReadUInt32BigEndian(bytes.Span);
         }
 
         /// <summary>
@@ -366,25 +296,19 @@ namespace SkyEditor.IO
         /// </summary>
         /// <param name="offset">Offset of the integer to read.</param>
         /// <returns>The integer from the given location</returns>
-        public static UInt64 ReadUInt64BigEndian(this IReadOnlyBinaryDataAccessor accessor, long offset)
-        {
-            var bytes = accessor.ReadArray(offset, 8);
-            Array.Reverse(bytes);
-            return BitConverter.ToUInt64(bytes, 0);
-        }
+        ulong ReadUInt64BigEndian(long offset) => BinaryPrimitives.ReadUInt64BigEndian(ReadSpan(offset, sizeof(ulong)));
 
         /// <summary>
         /// Reads an unsigned 64 bit big endian integer
         /// </summary>
         /// <param name="offset">Offset of the integer to read.</param>
         /// <returns>The integer from the given location</returns>
-        public static async Task<UInt64> ReadUInt64BigEndianAsync(this IReadOnlyBinaryDataAccessor accessor, long offset)
+        async Task<ulong> ReadUInt64BigEndianAsync(long offset)
         {
-            var bytes = await accessor.ReadArrayAsync(offset, 8);
-            Array.Reverse(bytes);
-            return BitConverter.ToUInt64(bytes, 0);
+            ReadOnlyMemory<byte> bytes = await ReadMemoryAsync(offset, sizeof(ulong));
+            return BinaryPrimitives.ReadUInt64BigEndian(bytes.Span);
         }
-#endregion
+        #endregion
 
 #region String Reads
 
@@ -394,10 +318,7 @@ namespace SkyEditor.IO
         /// <param name="offset">Offset of the string</param>
         /// <param name="length">Length in characters of the string</param>
         /// <returns>The UTF-16 string at the given offset</returns>
-        public static string ReadUnicodeString(this IReadOnlyBinaryDataAccessor accessor, long index, int length)
-        {
-            return Encoding.Unicode.GetString(accessor.ReadArray(index, length * 2), 0, length * 2);
-        }
+        string ReadUnicodeString(long index, int length) => Encoding.Unicode.GetString(ReadSpan(index, length * 2));
 
         /// <summary>
         /// Reads a UTF-16 string
@@ -405,9 +326,10 @@ namespace SkyEditor.IO
         /// <param name="offset">Offset of the string</param>
         /// <param name="length">Length in characters of the string</param>
         /// <returns>The UTF-16 string at the given offset</returns>
-        public static async Task<string> ReadUnicodeStringAsync(this IReadOnlyBinaryDataAccessor accessor, long index, int length)
+        async Task<string> ReadUnicodeStringAsync(long index, int length)
         {
-            return Encoding.Unicode.GetString(await accessor.ReadArrayAsync(index, length * 2), 0, length * 2);
+            ReadOnlyMemory<byte> bytes = await ReadMemoryAsync(index, length * 2);
+            return Encoding.Unicode.GetString(bytes.Span);
         }
 
         /// <summary>
@@ -415,14 +337,14 @@ namespace SkyEditor.IO
         /// </summary>
         /// <param name="offset">Offset of the string</param>
         /// <returns>The UTF-16 string</returns>
-        public static string ReadNullTerminatedUnicodeString(this IReadOnlyBinaryDataAccessor accessor, long index)
+        string ReadNullTerminatedUnicodeString(long index)
         {
             int length = 0;
-            while (accessor.ReadByte(index + length * 2) != 0 || accessor.ReadByte(index + length * 2 + 1) != 0)
+            while (ReadByte(index + length * 2) != 0 || ReadByte(index + length * 2 + 1) != 0)
             {
                 length += 1;
             }
-            return accessor.ReadUnicodeString(index, length);
+            return ReadUnicodeString(index, length);
         }
 
         /// <summary>
@@ -430,14 +352,14 @@ namespace SkyEditor.IO
         /// </summary>
         /// <param name="offset">Offset of the string</param>
         /// <returns>The UTF-16 string</returns>
-        public static async Task<string> ReadNullTerminatedUnicodeStringAsync(this IReadOnlyBinaryDataAccessor accessor, long index)
+        async Task<string> ReadNullTerminatedUnicodeStringAsync(long index)
         {
             int length = 0;
-            while (await accessor.ReadByteAsync(index + length * 2) != 0 || await accessor.ReadByteAsync(index + length * 2 + 1) != 0)
+            while (await ReadByteAsync(index + length * 2) != 0 || await ReadByteAsync(index + length * 2 + 1) != 0)
             {
                 length += 1;
             }
-            return accessor.ReadUnicodeString(index, length);
+            return ReadUnicodeString(index, length);
         }
 
         /// <summary>
@@ -445,19 +367,19 @@ namespace SkyEditor.IO
         /// </summary>
         /// <param name="offset">Offset of the string</param>
         /// <returns>The string at the given location</returns>
-        public static string ReadNullTerminatedString(this IReadOnlyBinaryDataAccessor accessor, long index, Encoding e)
+        string ReadNullTerminatedString(long index, Encoding e)
         {
             // The null character we're looking for
-            var nullCharSequence = e.GetBytes(Convert.ToChar(0x0).ToString());
+            var nullCharSequence = e.GetBytes("\0");
 
             // Find the length of the string as determined by the location of the null-char sequence
             int length = 0;
-            while (!accessor.ReadArray(index + length * nullCharSequence.Length, nullCharSequence.Length).All(x => x == 0))
+            while (!ReadArray(index + length * nullCharSequence.Length, nullCharSequence.Length).All(x => x == 0))
             {
                 length += 1;
             }
 
-            return accessor.ReadString(index, length, e);
+            return ReadString(index, length, e);
         }
 
         /// <summary>
@@ -465,19 +387,19 @@ namespace SkyEditor.IO
         /// </summary>
         /// <param name="offset">Offset of the string</param>
         /// <returns>The string at the given location</returns>
-        public static async Task<string> ReadNullTerminatedStringAsync(this IReadOnlyBinaryDataAccessor accessor, long index, Encoding e)
+        async Task<string> ReadNullTerminatedStringAsync(long index, Encoding e)
         {
             // The null character we're looking for
             var nullCharSequence = e.GetBytes(Convert.ToChar(0x0).ToString());
 
             // Find the length of the string as determined by the location of the null-char sequence
             int length = 0;
-            while (!(await accessor.ReadArrayAsync(index + length * nullCharSequence.Length, nullCharSequence.Length)).All(x => x == 0))
+            while (!(await ReadArrayAsync(index + length * nullCharSequence.Length, nullCharSequence.Length)).All(x => x == 0))
             {
                 length += 1;
             }
 
-            return accessor.ReadString(index, length, e);
+            return ReadString(index, length, e);
         }
 
         /// <summary>
@@ -486,10 +408,7 @@ namespace SkyEditor.IO
         /// <param name="offset">Offset of the string</param>
         /// <param name="length">Length in characters of the string</param>
         /// <returns>The UTF-16 string at the given offset</returns>
-        public static string ReadString(this IReadOnlyBinaryDataAccessor accessor, long index, int length, Encoding e)
-        {
-            return e.GetString(accessor.ReadArray(index, length), 0, length);
-        }
+        string ReadString(long index, int length, Encoding e) => e.GetString(ReadSpan(index, length));
 
         /// <summary>
         /// Reads a string using the given encoding
@@ -497,9 +416,10 @@ namespace SkyEditor.IO
         /// <param name="offset">Offset of the string</param>
         /// <param name="length">Length in characters of the string</param>
         /// <returns>The UTF-16 string at the given offset</returns>
-        public static async Task<string> ReadStringAsync(this IReadOnlyBinaryDataAccessor accessor, long index, int length, Encoding e)
+        async Task<string> ReadStringAsync(long index, int length, Encoding e)
         {
-            return e.GetString(await accessor.ReadArrayAsync(index, length), 0, length);
+            ReadOnlyMemory<byte> bytes = await ReadMemoryAsync(index, length);
+            return e.GetString(bytes.Span);
         }
 #endregion
     }

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.2;net462</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
     <Description>File and file system abstractions for file editing code libraries</Description>
     <Authors>evandixon</Authors>
     <Company>SkyEditor</Company>
@@ -10,10 +10,7 @@
     <PackageLicenseUrl>https://github.com/evandixon/SkyEditor.IO/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl></PackageProjectUrl>
     <RepositoryUrl>https://github.com/evandixon/SkyEditor.IO</RepositoryUrl>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)'=='netcoreapp2.2'">
-    <DefineConstants>ENABLE_SPAN_AND_MEMORY</DefineConstants>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

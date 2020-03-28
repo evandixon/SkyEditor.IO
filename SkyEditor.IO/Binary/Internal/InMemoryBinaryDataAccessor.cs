@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Buffers.Binary;
 using System.Threading.Tasks;
 
 namespace SkyEditor.IO.Binary.Internal
@@ -23,9 +22,8 @@ namespace SkyEditor.IO.Binary.Internal
 
         public byte[] ReadArray(long index, int length)
         {
-            var output = new byte[length];
-            Array.Copy(_rawData, index, output, 0, length);
-            return output;
+            int end = checked((int)(index + length));
+            return _rawData[(int)index..end];
         }
 
         public Task<byte[]> ReadArrayAsync()
@@ -48,7 +46,6 @@ namespace SkyEditor.IO.Binary.Internal
             return Task.FromResult(ReadByte(index));
         }
 
-#if ENABLE_SPAN_AND_MEMORY
         public ReadOnlyMemory<byte> ReadMemory()
         {
             return _rawData;
@@ -92,14 +89,12 @@ namespace SkyEditor.IO.Binary.Internal
                 return ReadArray(index, length);
             }
         }
-#endif
 
         public void Write(byte[] value)
         {
             value.CopyTo(_rawData, 0);
         }
 
-#if ENABLE_SPAN_AND_MEMORY
         public void Write(ReadOnlyMemory<byte> value)
         {
             value.CopyTo(_rawData);
@@ -109,7 +104,6 @@ namespace SkyEditor.IO.Binary.Internal
         {
             value.CopyTo(_rawData);
         }
-#endif
 
         public void Write(long index, byte value)
         {
@@ -118,7 +112,6 @@ namespace SkyEditor.IO.Binary.Internal
 
         public void Write(long index, int length, byte[] value)
         {
-#if ENABLE_SPAN_AND_MEMORY
             var toCopy = value.AsMemory().Slice(0, length);
             if (index < int.MaxValue)
             {
@@ -128,12 +121,8 @@ namespace SkyEditor.IO.Binary.Internal
             {
                 toCopy.ToArray().CopyTo(_rawData, index);
             }
-#else
-            Array.Copy(value, 0, _rawData, index, length);
-#endif
         }
 
-#if ENABLE_SPAN_AND_MEMORY
         public void Write(long index, int length, ReadOnlySpan<byte> value)
         {
             var toCopy = value.Slice(0, length);
@@ -146,7 +135,6 @@ namespace SkyEditor.IO.Binary.Internal
                 toCopy.ToArray().CopyTo(_rawData, index);
             }
         }
-#endif
 
         public Task WriteAsync(byte[] value)
         {
@@ -154,13 +142,11 @@ namespace SkyEditor.IO.Binary.Internal
             return Task.CompletedTask;
         }
 
-#if ENABLE_SPAN_AND_MEMORY
         public Task WriteAsync(ReadOnlyMemory<byte> value)
         {
             Write(value);
             return Task.CompletedTask;
         }
-#endif
 
         public Task WriteAsync(long index, byte value)
         {
@@ -173,7 +159,6 @@ namespace SkyEditor.IO.Binary.Internal
             Write(index, length, value);
             return Task.CompletedTask;
         }
-#if ENABLE_SPAN_AND_MEMORY
 
         public Task WriteAsync(long index, int length, ReadOnlyMemory<byte> value)
         {
@@ -186,7 +171,12 @@ namespace SkyEditor.IO.Binary.Internal
             WriteAsync(index, length, value);
             return Task.CompletedTask;
         }
-#endif
+
+        public IBinaryDataAccessor Slice(long index, long length)
+        {
+            int end = checked((int)(index + length));
+            return new InMemoryBinaryDataAccessor(_rawData[(int)index..end]);
+        }
 
         public void SetLength(long length)
         {
@@ -196,6 +186,54 @@ namespace SkyEditor.IO.Binary.Internal
             }
 
             Array.Resize(ref _rawData, (int)length);
+        }
+
+        public void WriteInt16(long index, short value) => BinaryPrimitives.WriteInt16LittleEndian(_rawData[checked((int)index)..], value);
+
+        public void WriteInt32(long index, int value) => BinaryPrimitives.WriteInt32LittleEndian(_rawData[checked((int)index)..], value);
+
+        public void WriteInt64(long index, long value) => BinaryPrimitives.WriteInt64LittleEndian(_rawData[checked((int)index)..], value);
+
+        public void WriteUInt16(long index, ushort value) => BinaryPrimitives.WriteUInt16LittleEndian(_rawData[checked((int)index)..], value);
+
+        public void WriteUInt32(long index, uint value) => BinaryPrimitives.WriteUInt32LittleEndian(_rawData[checked((int)index)..], value);
+
+        public void WriteUInt64(long index, ulong value) => BinaryPrimitives.WriteUInt64LittleEndian(_rawData[checked((int)index)..], value);
+
+        public Task WriteInt16Async(long index, short value)
+        {
+            WriteInt16(index, value);
+            return Task.CompletedTask;
+        }
+
+        public Task WriteInt32Async(long index, int value)
+        {
+            WriteInt32(index, value);
+            return Task.CompletedTask;
+        }
+
+        public Task WriteInt64Async(long index, long value)
+        {
+            WriteInt64(index, value);
+            return Task.CompletedTask;
+        }
+
+        public Task WriteUInt16Async(long index, ushort value)
+        {
+            WriteUInt16(index, value);
+            return Task.CompletedTask;
+        }
+
+        public Task WriteUInt32Async(long index, uint value)
+        {
+            WriteUInt32(index, value);
+            return Task.CompletedTask;
+        }
+
+        public Task WriteUInt64Async(long index, ulong value)
+        {
+            WriteUInt64(index, value);
+            return Task.CompletedTask;
         }
     }
 }

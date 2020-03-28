@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.IO.MemoryMappedFiles;
-using System.Text;
 
 namespace SkyEditor.IO.FileSystem
 {
@@ -11,13 +9,13 @@ namespace SkyEditor.IO.FileSystem
     /// </summary>
     public class PhysicalFileSystem : IFileSystem, IMemoryMappableFileSystem
     {
-        private static Lazy<PhysicalFileSystem> InstanceLazy = new Lazy<PhysicalFileSystem>(() => new PhysicalFileSystem());
+        private static readonly Lazy<PhysicalFileSystem> InstanceLazy = new Lazy<PhysicalFileSystem>(() => new PhysicalFileSystem());
 
         public static PhysicalFileSystem Instance => InstanceLazy.Value;
 
         public PhysicalFileSystem()
         {
-            ResetWorkingDirectory();
+            _workingDirectory = Directory.GetCurrentDirectory();
         }
 
         public string WorkingDirectory
@@ -42,7 +40,7 @@ namespace SkyEditor.IO.FileSystem
                         }
                         else if (part == "..")
                         {
-                            _workingDirectory = Path.GetDirectoryName(_workingDirectory);
+                            _workingDirectory = Path.GetDirectoryName(_workingDirectory) ?? throw new DirectoryNotFoundException();
                         }
                         else
                         {

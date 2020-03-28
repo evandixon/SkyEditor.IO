@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace SkyEditor.IO.Binary
@@ -8,7 +6,7 @@ namespace SkyEditor.IO.Binary
     /// <summary>
     /// Provides a view to a subset of a <see cref="IWriteOnlyBinaryDataAccessor"/> or other <see cref="WriteOnlyBinaryDataAccessorReference"/>
     /// </summary>
-    public class WriteOnlyBinaryDataAccessorReference : IWriteOnlyBinaryDataAccessor
+    internal class WriteOnlyBinaryDataAccessorReference : IWriteOnlyBinaryDataAccessor
     {
         public WriteOnlyBinaryDataAccessorReference(IWriteOnlyBinaryDataAccessor data, long offset, long length)
         {
@@ -63,7 +61,6 @@ namespace SkyEditor.IO.Binary
             Data.Write(Offset, value);
         }
 
-#if ENABLE_SPAN_AND_MEMORY
         public void Write(ReadOnlySpan<byte> value)
         {
             if (value.Length > Length)
@@ -73,7 +70,6 @@ namespace SkyEditor.IO.Binary
 
             Data.Write(Offset, value.Length, value);
         }
-#endif
 
         public async Task WriteAsync(byte[] value)
         {
@@ -86,7 +82,6 @@ namespace SkyEditor.IO.Binary
         }
 
 
-#if ENABLE_SPAN_AND_MEMORY
         public async Task WriteAsync(ReadOnlyMemory<byte> value)
         {
             if (value.Length > Length)
@@ -96,7 +91,6 @@ namespace SkyEditor.IO.Binary
 
             await Data.WriteAsync(Offset, value.Length, value);
         }
-#endif
 
         public void Write(long index, byte value)
         {
@@ -129,7 +123,6 @@ namespace SkyEditor.IO.Binary
         }
 
 
-#if ENABLE_SPAN_AND_MEMORY
         public void Write(long index, int length, ReadOnlySpan<byte> value)
         {
             if (length > Length)
@@ -139,7 +132,6 @@ namespace SkyEditor.IO.Binary
 
             Data.Write(Offset + index, length, value);
         }
-#endif
 
         public async Task WriteAsync(long index, int length, byte[] value)
         {
@@ -152,7 +144,6 @@ namespace SkyEditor.IO.Binary
         }
 
 
-#if ENABLE_SPAN_AND_MEMORY
         public async Task WriteAsync(long index, int length, ReadOnlyMemory<byte> value)
         {
             if (length > Length)
@@ -162,28 +153,5 @@ namespace SkyEditor.IO.Binary
 
             await Data.WriteAsync(Offset + index, length, value);
         }
-#endif
-    }
-
-    public static class IWriteOnlyBinaryDataAccessorExtensions
-    {
-        /// <summary>
-        /// Gets a view on top of the current data
-        /// </summary>
-        /// <param name="data">Data to reference</param>
-        /// <param name="offset">Offset of the view</param>
-        /// <param name="length">Maximum length of the view</param>
-        /// <returns>A view on top of the data</returns>
-        public static WriteOnlyBinaryDataAccessorReference GetWriteOnlyDataReference(this IWriteOnlyBinaryDataAccessor data, long offset, long length)
-        {
-            if (data is WriteOnlyBinaryDataAccessorReference reference)
-            {
-                return new WriteOnlyBinaryDataAccessorReference(reference, offset, length);
-            }
-            else
-            {
-                return new WriteOnlyBinaryDataAccessorReference(data, offset, length);
-            }
-        }
-    }
+     }
 }

@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.IO;
 using System.IO.MemoryMappedFiles;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace SkyEditor.IO.Binary.Internal
@@ -14,7 +13,7 @@ namespace SkyEditor.IO.Binary.Internal
             _file = memoryMappedFile ?? throw new ArgumentNullException(nameof(memoryMappedFile));
         }
 
-        private MemoryMappedFile _file;
+        private readonly MemoryMappedFile _file;
 
         public long Length { get; }
 
@@ -50,10 +49,8 @@ namespace SkyEditor.IO.Binary.Internal
 
         public byte ReadByte(long index)
         {
-            using (var accessor = _file.CreateViewAccessor(index, 1))
-            {
-                return accessor.ReadByte(0);
-            }
+            using var accessor = _file.CreateViewAccessor(index, 1);
+            return accessor.ReadByte(0);
         }
 
         public Task<byte> ReadByteAsync(long index)
@@ -61,7 +58,6 @@ namespace SkyEditor.IO.Binary.Internal
             return Task.FromResult(ReadByte(index));
         }
 
-#if ENABLE_SPAN_AND_MEMORY
         public Task<ReadOnlyMemory<byte>> ReadMemoryAsync()
         {
             return Task.FromResult((ReadOnlyMemory<byte>)ReadArray().AsMemory());
@@ -81,45 +77,34 @@ namespace SkyEditor.IO.Binary.Internal
         {
             return (ReadOnlySpan<byte>)ReadArray(index, length).AsSpan();
         }
-#endif
 
         public void Write(byte[] value)
         {
-            using (var accessor = _file.CreateViewAccessor())
-            {
-                accessor.WriteArray(0, value, 0, value.Length);
-            }
+            using var accessor = _file.CreateViewAccessor();
+            accessor.WriteArray(0, value, 0, value.Length);
         }
 
-#if ENABLE_SPAN_AND_MEMORY
         public void Write(ReadOnlySpan<byte> value)
         {
             Write(value.ToArray());
         }
-#endif
 
         public void Write(long index, byte value)
         {
-            using (var accessor = _file.CreateViewAccessor(index, 1))
-            {
-                accessor.Write(0, value);
-            }
+            using var accessor = _file.CreateViewAccessor(index, 1);
+            accessor.Write(0, value);
         }
 
         public void Write(long index, int length, byte[] value)
         {
-            using (var accessor = _file.CreateViewAccessor(index, length))
-            {
-                accessor.WriteArray(0, value, 0, length);
-            }
+            using var accessor = _file.CreateViewAccessor(index, length);
+            accessor.WriteArray(0, value, 0, length);
         }
 
-#if ENABLE_SPAN_AND_MEMORY
         public void Write(long index, int length, ReadOnlySpan<byte> value)
         {
             Write(index, length, value.ToArray());
         }
-#endif
 
         public Task WriteAsync(byte[] value)
         {
@@ -127,13 +112,11 @@ namespace SkyEditor.IO.Binary.Internal
             return Task.CompletedTask;
         }
 
-#if ENABLE_SPAN_AND_MEMORY
         public Task WriteAsync(ReadOnlyMemory<byte> value)
         {
             Write(value.ToArray());
             return Task.CompletedTask;
         }
-#endif
 
         public Task WriteAsync(long index, byte value)
         {
@@ -147,12 +130,27 @@ namespace SkyEditor.IO.Binary.Internal
             return Task.CompletedTask;
         }
 
-#if ENABLE_SPAN_AND_MEMORY
         public Task WriteAsync(long index, int length, ReadOnlyMemory<byte> value)
         {
             Write(index, length, value.ToArray());
             return Task.CompletedTask;
         }
-#endif
-    }
+
+        public void CopyTo(Stream destination)
+        {
+            using var stream = _file.CreateViewStream();
+            stream.CopyTo(destination);
+        }
+
+        public Task CopyToAsync(Stream destination)
+        {
+            using var stream = _file.CreateViewStream();
+            return stream.CopyToAsync(destination);
+        }
+
+        public void Dispose()
+        {
+            _file.Dispose();
+        }
+     }
 }

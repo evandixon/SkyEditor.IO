@@ -1,10 +1,8 @@
 ﻿using SkyEditor.IO.Binary.Internal;
 using SkyEditor.IO.FileSystem;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.IO.MemoryMappedFiles;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace SkyEditor.IO.Binary
@@ -15,7 +13,7 @@ namespace SkyEditor.IO.Binary
         {
             Filename = filename;
             FileSystem = fileSystem;
-            OpenAutodetectFormat(filename, fileSystem);
+            Accessor = OpenAutodetectFormat(filename, fileSystem);
         }
 
         public BinaryFile(string filename) : this(filename, PhysicalFileSystem.Instance)
@@ -37,10 +35,8 @@ namespace SkyEditor.IO.Binary
             Accessor = new StreamBinaryDataAccessor(stream);
         }
 
-        private void OpenAutodetectFormat(string filename, IFileSystem fileSystem)
+        private static IBinaryDataAccessor OpenAutodetectFormat(string filename, IFileSystem fileSystem)
         {
-            CloseFileResources(); // Resources should already be null, but if this isn't called, we may leave a file open accidentally. Luckily it's safe to call this multiple times.
-
             var fileLength = fileSystem.GetFileLength(filename);
 
             // First try a byte array
@@ -49,20 +45,12 @@ namespace SkyEditor.IO.Binary
             // so we may have to fall back onto something else
             if (fileLength < int.MaxValue)
             {
-                byte[] byteArray;
                 try
                 {
-                    byteArray = fileSystem.ReadAllBytes(filename);
+                    return new InMemoryBinaryDataAccessor(fileSystem.ReadAllBytes(filename));
                 }
                 catch (OutOfMemoryException)
                 {
-                    byteArray = null;
-                }
-
-                if (byteArray != null)
-                {
-                    Accessor = new InMemoryBinaryDataAccessor(byteArray);
-                    return;
                 }
             }
 
@@ -72,15 +60,15 @@ namespace SkyEditor.IO.Binary
             // In the future, this may need to be feature-switchable, since we can't resize this file without disposing of it first
             if (fileSystem is IMemoryMappableFileSystem memoryMappableFileSystem)
             {
-                MemoryMappedFile = memoryMappableFileSystem.OpenMemoryMappedFile(filename);
-                Accessor = new MemoryMappedFileDataAccessor(MemoryMappedFile, fileLength);
+                var memoryMappedFile = memoryMappableFileSystem.OpenMemoryMappedFile(filename);
+                var accessor = new MemoryMappedFileDataAccessor(memoryMappedFile, fileLength);
                 try
                 {
                     // Sometimes we might not have enough memory.
                     // When that happens, we get an IOException saying something "There are not enough memory resources available"
-                    if (MemoryMappedFile.CreateViewAccessor().Capacity > -1) // Compare the capacity to -1 just to see if we get an IOException
+                    if (memoryMappedFile.CreateViewAccessor().Capacity > -1) // Compare the capacity to -1 just to see if we get an IOException
                     {
-                        return;
+                        return accessor;
                     }
                 }
                 catch (IOException)
@@ -92,8 +80,7 @@ namespace SkyEditor.IO.Binary
 
             // If all else fails, we can use a stream.    
             // It's the slowest since it is not thread-safe, and the StreamBinaryDataAccessor has to use appropriate locking
-            SourceStream = fileSystem.OpenFile(filename);
-            Accessor = new StreamBinaryDataAccessor(SourceStream);
+            return new StreamBinaryDataAccessor(fileSystem.OpenFile(filename));
         }
 
         public async Task Save(string filename, IFileSystem fileSystem)
@@ -121,10 +108,9 @@ namespace SkyEditor.IO.Binary
                         break;
                     }
 
-                    var memoryMappedStreamView = MemoryMappedFile.CreateViewStream();
                     using (var dest = fileSystem.OpenFileWriteOnly(filename))
                     {
-                        await memoryMappedStreamView.CopyToAsync(dest);
+                        await memoryMappedAccessor.CopyToAsync(dest);
                     }
                     break;
                 case StreamBinaryDataAccessor streamAccessor:
@@ -159,7 +145,7 @@ namespace SkyEditor.IO.Binary
 
         private IBinaryDataAccessor Accessor { get; set; }
 
-        public string Filename { get; protected set; }
+        public string? Filename { get; protected set; }
 
         /// <summary>
         /// The underlying file system from which data is retrieved.
@@ -168,22 +154,7 @@ namespace SkyEditor.IO.Binary
         /// If this has a value, then this class has free reign over how data is accessed, including opening and closing all required resources.
         /// If this is null, then this class is not allowed to close the <see cref="Accessor"/> or its resources, since this class cannot reopen it afterward.
         /// </remarks>
-        private IFileSystem FileSystem { get; set; }
-
-        /// <summary>
-        /// The underlying memory mapped file, if applicable
-        /// </summary>
-        private MemoryMappedFile MemoryMappedFile { get; set; }
-
-        /// <summary>
-        /// The underlying data source if the binary file is being accessed as a stream.
-        /// </summary>
-        /// <remarks>
-        /// This will only have a value if the stream belongs to this class and.
-        /// If the underlying data source is a stream that is not owned by this class, <see cref="SourceStream"/> will be null.
-        /// This stream will be disposed along with the class if set.
-        /// </remarks>
-        private Stream SourceStream { get; set; }
+        private IFileSystem? FileSystem { get; set; }
 
         public long Length => Accessor.Length;
 
@@ -199,7 +170,6 @@ namespace SkyEditor.IO.Binary
 
         public Task<byte> ReadByteAsync(long index) => Accessor.ReadByteAsync(index);
 
-#if ENABLE_SPAN_AND_MEMORY
         public Task<ReadOnlyMemory<byte>> ReadMemoryAsync() => Accessor.ReadMemoryAsync();
 
         public Task<ReadOnlyMemory<byte>> ReadMemoryAsync(long index, int length) => Accessor.ReadMemoryAsync(index, length);
@@ -207,7 +177,6 @@ namespace SkyEditor.IO.Binary
         public ReadOnlySpan<byte> ReadSpan() => Accessor.ReadSpan();
 
         public ReadOnlySpan<byte> ReadSpan(long index, int length) => Accessor.ReadSpan(index, length);
-#endif
 
         public void Write(byte[] value) => Accessor.Write(value);
 
@@ -221,7 +190,6 @@ namespace SkyEditor.IO.Binary
 
         public Task WriteAsync(long index, int length, byte[] value) => Accessor.WriteAsync(index, length, value);
 
-#if ENABLE_SPAN_AND_MEMORY
         public void Write(ReadOnlySpan<byte> value) => Accessor.Write(value);
 
         public void Write(long index, int length, ReadOnlySpan<byte> value) => Accessor.Write(index, length, value);
@@ -229,8 +197,7 @@ namespace SkyEditor.IO.Binary
         public Task WriteAsync(ReadOnlyMemory<byte> value) => Accessor.WriteAsync(value);
 
         public Task WriteAsync(long index, int length, ReadOnlyMemory<byte> value) => Accessor.WriteAsync(index, length, value);
-#endif
-        
+         
         /// <summary>
         /// Resizes the file. This method is NOT thread safe
         /// </summary>
@@ -259,12 +226,12 @@ namespace SkyEditor.IO.Binary
 
         private void ResizeAndReopen(long length)
         {
-            if (FileSystem == null)
+            if (FileSystem == null || Filename == null)
             {
                 throw new InvalidOperationException(Properties.Resources.BinaryFile_NotAllowedToCloseFile);
             }
 
-            CloseFileResources();
+            Accessor.Dispose();
 
             using (var stream = FileSystem.OpenFile(Filename))
             {
@@ -276,24 +243,7 @@ namespace SkyEditor.IO.Binary
 
         public virtual void Dispose()
         {
-            CloseFileResources();
-        }
-
-        private void CloseFileResources()
-        {
-            if (FileSystem != null)
-            {
-                if (MemoryMappedFile != null)
-                {
-                    MemoryMappedFile.Dispose();
-                    MemoryMappedFile = null;
-                }
-                if (SourceStream != null)
-                {
-                    SourceStream.Dispose();
-                    SourceStream = null;
-                }
-            }
+            Accessor.Dispose();
         }
     }
 }
