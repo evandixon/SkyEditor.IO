@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO.MemoryMappedFiles;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace SkyEditor.IO.Binary.Internal
@@ -14,7 +12,7 @@ namespace SkyEditor.IO.Binary.Internal
             _file = memoryMappedFile ?? throw new ArgumentNullException(nameof(memoryMappedFile));
         }
 
-        private MemoryMappedFile _file;
+        private readonly MemoryMappedFile _file;
 
         public long Length { get; }
 
@@ -50,10 +48,8 @@ namespace SkyEditor.IO.Binary.Internal
 
         public byte ReadByte(long index)
         {
-            using (var accessor = _file.CreateViewAccessor(index, 1))
-            {
-                return accessor.ReadByte(0);
-            }
+            using var accessor = _file.CreateViewAccessor(index, 1);
+            return accessor.ReadByte(0);
         }
 
         public Task<byte> ReadByteAsync(long index)
@@ -83,10 +79,8 @@ namespace SkyEditor.IO.Binary.Internal
 
         public void Write(byte[] value)
         {
-            using (var accessor = _file.CreateViewAccessor())
-            {
-                accessor.WriteArray(0, value, 0, value.Length);
-            }
+            using var accessor = _file.CreateViewAccessor();
+            accessor.WriteArray(0, value, 0, value.Length);
         }
 
         public void Write(ReadOnlySpan<byte> value)
@@ -96,18 +90,14 @@ namespace SkyEditor.IO.Binary.Internal
 
         public void Write(long index, byte value)
         {
-            using (var accessor = _file.CreateViewAccessor(index, 1))
-            {
-                accessor.Write(0, value);
-            }
+            using var accessor = _file.CreateViewAccessor(index, 1);
+            accessor.Write(0, value);
         }
 
         public void Write(long index, int length, byte[] value)
         {
-            using (var accessor = _file.CreateViewAccessor(index, length))
-            {
-                accessor.WriteArray(0, value, 0, length);
-            }
+            using var accessor = _file.CreateViewAccessor(index, length);
+            accessor.WriteArray(0, value, 0, length);
         }
 
         public void Write(long index, int length, ReadOnlySpan<byte> value)

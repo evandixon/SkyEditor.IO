@@ -1,10 +1,8 @@
 ﻿using SkyEditor.IO.Binary.Internal;
 using SkyEditor.IO.FileSystem;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.IO.MemoryMappedFiles;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace SkyEditor.IO.Binary
@@ -112,7 +110,7 @@ namespace SkyEditor.IO.Binary
                 case InMemoryBinaryDataAccessor inMemoryAccessor:
                     fileSystem.WriteAllBytes(filename, inMemoryAccessor.ReadArray());
                     break;
-                case MemoryMappedFileDataAccessor memoryMappedAccessor:
+                case MemoryMappedFileDataAccessor _:
                     if (this.Filename == filename)
                     {
                         // Trying to save to the current file
