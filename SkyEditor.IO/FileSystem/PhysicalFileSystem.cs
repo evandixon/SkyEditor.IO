@@ -15,7 +15,7 @@ namespace SkyEditor.IO.FileSystem
 
         public PhysicalFileSystem()
         {
-            ResetWorkingDirectory();
+            _workingDirectory = Directory.GetCurrentDirectory();
         }
 
         public string WorkingDirectory
@@ -40,7 +40,7 @@ namespace SkyEditor.IO.FileSystem
                         }
                         else if (part == "..")
                         {
-                            _workingDirectory = Path.GetDirectoryName(_workingDirectory);
+                            _workingDirectory = Path.GetDirectoryName(_workingDirectory) ?? throw new DirectoryNotFoundException();
                         }
                         else
                         {

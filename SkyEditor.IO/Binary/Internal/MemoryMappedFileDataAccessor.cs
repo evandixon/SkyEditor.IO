@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.IO.MemoryMappedFiles;
 using System.Threading.Tasks;
 
@@ -133,6 +134,23 @@ namespace SkyEditor.IO.Binary.Internal
         {
             Write(index, length, value.ToArray());
             return Task.CompletedTask;
+        }
+
+        public void CopyTo(Stream destination)
+        {
+            using var stream = _file.CreateViewStream();
+            stream.CopyTo(destination);
+        }
+
+        public Task CopyToAsync(Stream destination)
+        {
+            using var stream = _file.CreateViewStream();
+            return stream.CopyToAsync(destination);
+        }
+
+        public void Dispose()
+        {
+            _file.Dispose();
         }
      }
 }

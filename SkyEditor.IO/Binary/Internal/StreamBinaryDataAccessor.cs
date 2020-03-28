@@ -274,5 +274,11 @@ namespace SkyEditor.IO.Binary.Internal
         {
             SourceStream.SetLength(length);
         }
+
+        public void Dispose()
+        {
+            SourceStream.Dispose();
+            StreamSemaphore.Dispose();
+        }
     }
 }

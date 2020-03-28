@@ -10,6 +10,7 @@
     <PackageLicenseUrl>https://github.com/evandixon/SkyEditor.IO/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl></PackageProjectUrl>
     <RepositoryUrl>https://github.com/evandixon/SkyEditor.IO</RepositoryUrl>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
