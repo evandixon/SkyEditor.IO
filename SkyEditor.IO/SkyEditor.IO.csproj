@@ -1,12 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <Description>File and file system abstractions for file editing code libraries</Description>
     <Authors>evandixon</Authors>
     <Company>SkyEditor</Company>
-    <Version>5.0.0</Version>
-    <Copyright>2018-2019</Copyright>
+    <Version>5.1.1</Version>
+    <Copyright>2018-2020</Copyright>
     <PackageLicenseUrl>https://github.com/evandixon/SkyEditor.IO/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl></PackageProjectUrl>
     <RepositoryUrl>https://github.com/evandixon/SkyEditor.IO</RepositoryUrl>
