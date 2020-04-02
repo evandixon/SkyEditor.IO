@@ -313,4 +313,129 @@ namespace SkyEditor.IO.Binary
         }
 #endregion
     }
+
+    // Compatibility layer to allow the use of the interface's default implementation on all classes, without manually casting to the interface
+    public static class IWriteOnlyBinaryDataAccessorExtensions
+    {
+        #region Integer Writes
+        /// <summary>
+        /// Writes a signed 16 bit little endian integer
+        /// </summary>
+        /// <param name="offset">Offset of the integer to write.</param>
+        /// <param name="value">The integer to write</param>
+        public static void WriteInt16(this IWriteOnlyBinaryDataAccessor accessor, long offset, short value) => accessor.WriteInt16(offset, value);
+
+        /// <summary>
+        /// Writes a signed 16 bit little endian integer
+        /// </summary>
+        /// <param name="offset">Offset of the integer to write.</param>
+        /// <param name="value">The integer to write</param>
+        public static Task WriteInt16Async(this IWriteOnlyBinaryDataAccessor accessor, long offset, short value) => accessor.WriteInt16Async(offset, value);
+
+        /// <summary>
+        /// Writes a signed 32 bit little endian integer
+        /// </summary>
+        /// <param name="offset">Offset of the integer to write.</param>
+        /// <param name="value">The integer to write</param>
+        public static void WriteInt32(this IWriteOnlyBinaryDataAccessor accessor, long offset, int value) => accessor.WriteInt32(offset, value);
+
+        /// <summary>
+        /// Writes a signed 32 bit little endian integer
+        /// </summary>
+        /// <param name="offset">Offset of the integer to write.</param>
+        /// <param name="value">The integer to write</param>
+        public static Task WriteInt32Async(this IWriteOnlyBinaryDataAccessor accessor, long offset, int value) => accessor.WriteInt32Async(offset, value);
+
+        /// <summary>
+        /// Writes a signed 64 bit little endian integer
+        /// </summary>
+        /// <param name="offset">Offset of the integer to write.</param>
+        /// <param name="value">The integer to write</param>
+        public static void WriteInt64(this IWriteOnlyBinaryDataAccessor accessor, long offset, long value) => accessor.WriteInt64(offset, value);
+
+        /// <summary>
+        /// Writes a signed 64 bit little endian integer
+        /// </summary>
+        /// <param name="offset">Offset of the integer to write.</param>
+        /// <param name="value">The integer to write</param>
+        public static Task WriteInt64Async(this IWriteOnlyBinaryDataAccessor accessor, long offset, long value) => accessor.WriteInt64Async(offset, value);
+
+        /// <summary>
+        /// Writes an unsigned 16 bit little endian integer
+        /// </summary>
+        /// <param name="offset">Offset of the integer to write.</param>
+        /// <param name="value">The integer to write</param>
+        public static void WriteUInt16(this IWriteOnlyBinaryDataAccessor accessor, long offset, ushort value) => accessor.WriteUInt16(offset, value);
+
+        /// <summary>
+        /// Writes an unsigned 16 bit little endian integer
+        /// </summary>
+        /// <param name="offset">Offset of the integer to write.</param>
+        /// <param name="value">The integer to write</param>
+        public static Task WriteUInt16Async(this IWriteOnlyBinaryDataAccessor accessor, long offset, ushort value) => accessor.WriteUInt16Async(offset, value);
+
+        /// <summary>
+        /// Writes an unsigned 32 bit little endian integer
+        /// </summary>
+        /// <param name="offset">Offset of the integer to write.</param>
+        /// <param name="value">The integer to write</param>
+        public static void WriteUInt32(this IWriteOnlyBinaryDataAccessor accessor, long offset, uint value) => accessor.WriteUInt32(offset, value);
+
+        /// <summary>
+        /// Writes an unsigned 32 bit little endian integer
+        /// </summary>
+        /// <param name="offset">Offset of the integer to write.</param>
+        /// <param name="value">The integer to write</param>
+        public static Task WriteUInt32Async(this IWriteOnlyBinaryDataAccessor accessor, long offset, uint value) => accessor.WriteUInt32Async(offset, value);
+
+        /// <summary>
+        /// Writes an unsigned 64 bit little endian integer
+        /// </summary>
+        /// <param name="offset">Offset of the integer to write.</param>
+        /// <param name="value">The integer to write</param>
+        public static void WriteUInt64(this IWriteOnlyBinaryDataAccessor accessor, long offset, ulong value) => accessor.WriteUInt64(offset, value);
+
+        /// <summary>
+        /// Writes an unsigned 64 bit little endian integer
+        /// </summary>
+        /// <param name="offset">Offset of the integer to write.</param>
+        /// <param name="value">The integer to write</param>
+        public static Task WriteUInt64Async(this IWriteOnlyBinaryDataAccessor accessor, long offset, ulong value) => accessor.WriteUInt64Async(offset, value);
+        #endregion
+
+        #region String Writes
+
+        /// <summary>
+        /// Writes a string with the given encoding to the given offset of the file
+        /// </summary>
+        /// <param name="index">Index of the file to write</param>
+        /// <param name="e">The encoding to use</param>
+        /// <param name="value">The string to write. The entire string will be written without an ending null character.</param>
+        public static void WriteString(this IWriteOnlyBinaryDataAccessor accessor, long index, Encoding e, string value) => accessor.WriteString(index, e, value);
+
+        /// <summary>
+        /// Writes a string with the given encoding to the given offset of the file
+        /// </summary>
+        /// <param name="index">Index of the file to write</param>
+        /// <param name="e">The encoding to use</param>
+        /// <param name="value">The string to write. The entire string will be written without an ending null character.</param>
+        public static Task WriteStringAsync(this IWriteOnlyBinaryDataAccessor accessor, long index, Encoding e, string value) => accessor.WriteStringAsync(index, e, value);
+
+        /// <summary>
+        /// Writes a string with the given encoding to the given offset of the file
+        /// </summary>
+        /// <param name="index">Index of the file to write</param>
+        /// <param name="e">The encoding to use</param>
+        /// <param name="value">The string to write. The entire string will be written with an ending null character.</param>
+        public static void WriteNullTerminatedString(this IWriteOnlyBinaryDataAccessor accessor, long index, Encoding e, string value) => accessor.WriteNullTerminatedString(index, e, value);
+
+        /// <summary>
+        /// Writes a string with the given encoding to the given offset of the file
+        /// </summary>
+        /// <param name="index">Index of the file to write</param>
+        /// <param name="e">The encoding to use</param>
+        /// <param name="value">The string to write. The entire string will be written with an ending null character.</param>
+        public static Task WriteNullTerminatedStringAsync(this IWriteOnlyBinaryDataAccessor accessor, long index, Encoding e, string value) => accessor.WriteNullTerminatedStringAsync(index, e, value);
+        #endregion
+    }
 }

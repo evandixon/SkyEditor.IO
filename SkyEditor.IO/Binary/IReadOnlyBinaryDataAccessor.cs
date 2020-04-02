@@ -423,4 +423,246 @@ namespace SkyEditor.IO.Binary
         }
 #endregion
     }
+
+    // Compatibility layer to allow the use of the interface's default implementation on all classes, without manually casting to the interface
+    public static class IReadOnlyBinaryDataAccessorExtensions
+    {
+        #region Integer Reads
+
+        /// <summary>
+        /// Reads a signed 16 bit little endian integer
+        /// </summary>
+        /// <param name="offset">Offset of the integer to read.</param>
+        /// <returns>The integer from the given location</returns>
+        public static short ReadInt16(this IReadOnlyBinaryDataAccessor accessor, long offset) => accessor.ReadInt16(offset);
+
+        /// <summary>
+        /// Reads a signed 16 bit little endian integer
+        /// </summary>
+        /// <param name="offset">Offset of the integer to read.</param>
+        /// <returns>The integer from the given location</returns>
+        public static Task<short> ReadInt16Async(this IReadOnlyBinaryDataAccessor accessor, long offset) => accessor.ReadInt16Async(offset);
+
+        /// <summary>
+        /// Reads a signed 32 bit little endian integer
+        /// </summary>
+        /// <param name="offset">Offset of the integer to read.</param>
+        /// <returns>The integer from the given location</returns>
+        public static int ReadInt32(this IReadOnlyBinaryDataAccessor accessor, long offset) => accessor.ReadInt32(offset);
+
+        /// <summary>
+        /// Reads a signed 32 bit little endian integer
+        /// </summary>
+        /// <param name="offset">Offset of the integer to read.</param>
+        /// <returns>The integer from the given location</returns>
+        public static Task<int> ReadInt32Async(this IReadOnlyBinaryDataAccessor accessor, long offset) => accessor.ReadInt32Async(offset);
+
+        /// <summary>
+        /// Reads a signed 64 bit little endian integer
+        /// </summary>
+        /// <param name="offset">Offset of the integer to read.</param>
+        /// <returns>The integer from the given location</returns>
+        public static long ReadInt64(this IReadOnlyBinaryDataAccessor accessor, long offset) => accessor.ReadInt64(offset);
+
+        /// <summary>
+        /// Reads a signed 64 bit little endian integer
+        /// </summary>
+        /// <param name="offset">Offset of the integer to read.</param>
+        /// <returns>The integer from the given location</returns>
+        public static Task<long> ReadInt64Async(this IReadOnlyBinaryDataAccessor accessor, long offset) => accessor.ReadInt64Async(offset);
+
+        /// <summary>
+        /// Reads an unsigned 16 bit little endian integer
+        /// </summary>
+        /// <param name="offset">Offset of the integer to read.</param>
+        /// <returns>The integer from the given location</returns>
+        public static ushort ReadUInt16(this IReadOnlyBinaryDataAccessor accessor, long offset) => accessor.ReadUInt16(offset);
+
+        /// <summary>
+        /// Reads an unsigned 16 bit little endian integer
+        /// </summary>
+        /// <param name="offset">Offset of the integer to read.</param>
+        /// <returns>The integer from the given location</returns>
+        public static Task<ushort> ReadUInt16Async(this IReadOnlyBinaryDataAccessor accessor, long offset) => accessor.ReadUInt16Async(offset);
+
+        /// <summary>
+        /// Reads an unsigned 32 bit little endian integer
+        /// </summary>
+        /// <param name="offset">Offset of the integer to read.</param>
+        /// <returns>The integer from the given location</returns>
+        public static uint ReadUInt32(this IReadOnlyBinaryDataAccessor accessor, long offset) => accessor.ReadUInt32(offset);
+
+        /// <summary>
+        /// Reads an unsigned 32 bit little endian integer
+        /// </summary>
+        /// <param name="offset">Offset of the integer to read.</param>
+        /// <returns>The integer from the given location</returns>
+        public static Task<uint> ReadUInt32Async(this IReadOnlyBinaryDataAccessor accessor, long offset) => accessor.ReadUInt32Async(offset);
+
+        /// <summary>
+        /// Reads an unsigned 64 bit little endian integer
+        /// </summary>
+        /// <param name="offset">Offset of the integer to read.</param>
+        /// <returns>The integer from the given location</returns>
+        public static ulong ReadUInt64(this IReadOnlyBinaryDataAccessor accessor, long offset) => accessor.ReadUInt64(offset);
+
+        /// <summary>
+        /// Reads an unsigned 64 bit little endian integer
+        /// </summary>
+        /// <param name="offset">Offset of the integer to read.</param>
+        /// <returns>The integer from the given location</returns>
+        public static Task<ulong> ReadUInt64Async(this IReadOnlyBinaryDataAccessor accessor, long offset) => accessor.ReadUInt64Async(offset);
+
+        #endregion
+
+        #region Big Endian Reads
+
+        /// <summary>
+        /// Reads a signed 16 bit big endian integer
+        /// </summary>
+        /// <param name="offset">Offset of the integer to read.</param>
+        /// <returns>The integer from the given location</returns>
+        public static short ReadInt16BigEndian(this IReadOnlyBinaryDataAccessor accessor, long offset) => accessor.ReadInt16BigEndian(offset);
+
+        /// <summary>
+        /// Reads a signed 16 bit big endian integer
+        /// </summary>
+        /// <param name="offset">Offset of the integer to read.</param>
+        /// <returns>The integer from the given location</returns>
+        public static Task<short> ReadInt16BigEndianAsync(this IReadOnlyBinaryDataAccessor accessor, long offset) => accessor.ReadInt16BigEndianAsync(offset);
+
+        /// <summary>
+        /// Reads a signed 32 bit big endian integer
+        /// </summary>
+        /// <param name="offset">Offset of the integer to read.</param>
+        /// <returns>The integer from the given location</returns>
+        public static int ReadInt32BigEndian(this IReadOnlyBinaryDataAccessor accessor, long offset) => accessor.ReadInt32BigEndian(offset);
+
+        /// <summary>
+        /// Reads a signed 32 bit big endian integer
+        /// </summary>
+        /// <param name="offset">Offset of the integer to read.</param>
+        /// <returns>The integer from the given location</returns>
+        public static Task<int> ReadInt32BigEndianAsync(this IReadOnlyBinaryDataAccessor accessor, long offset) => accessor.ReadInt32BigEndianAsync(offset);
+
+        /// <summary>
+        /// Reads a signed 64 bit big endian integer
+        /// </summary>
+        /// <param name="offset">Offset of the integer to read.</param>
+        /// <returns>The integer from the given location</returns>
+        public static long ReadInt64BigEndian(this IReadOnlyBinaryDataAccessor accessor, long offset) => accessor.ReadInt64BigEndian(offset);
+
+        /// <summary>
+        /// Reads a signed 64 bit big endian integer
+        /// </summary>
+        /// <param name="offset">Offset of the integer to read.</param>
+        /// <returns>The integer from the given location</returns>
+        public static Task<long> ReadInt64BigEndianAsync(this IReadOnlyBinaryDataAccessor accessor, long offset) => accessor.ReadInt64BigEndianAsync(offset);
+
+        /// <summary>
+        /// Reads an unsigned 16 bit big endian integer
+        /// </summary>
+        /// <param name="offset">Offset of the integer to read.</param>
+        /// <returns>The integer from the given location</returns>
+        public static ushort ReadUInt16BigEndian(this IReadOnlyBinaryDataAccessor accessor, long offset) => accessor.ReadUInt16BigEndian(offset);
+
+        /// <summary>
+        /// Reads an unsigned 16 bit big endian integer
+        /// </summary>
+        /// <param name="offset">Offset of the integer to read.</param>
+        /// <returns>The integer from the given location</returns>
+        public static Task<ushort> ReadUInt16BigEndianAsync(this IReadOnlyBinaryDataAccessor accessor, long offset) => accessor.ReadUInt16BigEndianAsync(offset);
+
+        /// <summary>
+        /// Reads an unsigned 32 bit big endian integer
+        /// </summary>
+        /// <param name="offset">Offset of the integer to read.</param>
+        /// <returns>The integer from the given location</returns>
+        public static uint ReadUInt32BigEndian(this IReadOnlyBinaryDataAccessor accessor, long offset) => accessor.ReadUInt32BigEndian(offset);
+
+        /// <summary>
+        /// Reads an unsigned 32 bit big endian integer
+        /// </summary>
+        /// <param name="offset">Offset of the integer to read.</param>
+        /// <returns>The integer from the given location</returns>
+        public static Task<uint> ReadUInt32BigEndianAsync(this IReadOnlyBinaryDataAccessor accessor, long offset) => accessor.ReadUInt32BigEndianAsync(offset);
+
+        /// <summary>
+        /// Reads an unsigned 64 bit big endian integer
+        /// </summary>
+        /// <param name="offset">Offset of the integer to read.</param>
+        /// <returns>The integer from the given location</returns>
+        public static ulong ReadUInt64BigEndian(this IReadOnlyBinaryDataAccessor accessor, long offset) => accessor.ReadUInt64BigEndian(offset);
+
+        /// <summary>
+        /// Reads an unsigned 64 bit big endian integer
+        /// </summary>
+        /// <param name="offset">Offset of the integer to read.</param>
+        /// <returns>The integer from the given location</returns>
+        public static Task<ulong> ReadUInt64BigEndianAsync(this IReadOnlyBinaryDataAccessor accessor, long offset) => accessor.ReadUInt64BigEndianAsync(offset);
+        #endregion
+
+        #region String Reads
+
+        /// <summary>
+        /// Reads a UTF-16 string
+        /// </summary>
+        /// <param name="offset">Offset of the string</param>
+        /// <param name="length">Length in characters of the string</param>
+        /// <returns>The UTF-16 string at the given offset</returns>
+        public static string ReadUnicodeString(this IReadOnlyBinaryDataAccessor accessor, long index, int length) => accessor.ReadUnicodeString(index, length);
+
+        /// <summary>
+        /// Reads a UTF-16 string
+        /// </summary>
+        /// <param name="offset">Offset of the string</param>
+        /// <param name="length">Length in characters of the string</param>
+        /// <returns>The UTF-16 string at the given offset</returns>
+        public static Task<string> ReadUnicodeStringAsync(this IReadOnlyBinaryDataAccessor accessor, long index, int length) => accessor.ReadUnicodeStringAsync(index, length);
+
+        /// <summary>
+        /// Reads a null-terminated UTF-16 string
+        /// </summary>
+        /// <param name="offset">Offset of the string</param>
+        /// <returns>The UTF-16 string</returns>
+        public static string ReadNullTerminatedUnicodeString(this IReadOnlyBinaryDataAccessor accessor, long index) => accessor.ReadNullTerminatedUnicodeString(index);
+
+        /// <summary>
+        /// Reads a null-terminated UTF-16 string
+        /// </summary>
+        /// <param name="offset">Offset of the string</param>
+        /// <returns>The UTF-16 string</returns>
+        public static Task<string> ReadNullTerminatedUnicodeStringAsync(this IReadOnlyBinaryDataAccessor accessor, long index) => accessor.ReadNullTerminatedUnicodeStringAsync(index);
+
+        /// <summary>
+        /// Reads a null-terminated string using the given encoding
+        /// </summary>
+        /// <param name="offset">Offset of the string</param>
+        /// <returns>The string at the given location</returns>
+        public static string ReadNullTerminatedString(this IReadOnlyBinaryDataAccessor accessor, long index, Encoding e) => accessor.ReadNullTerminatedString(index, e);
+
+        /// <summary>
+        /// Reads a null-terminated using the given encoding
+        /// </summary>
+        /// <param name="offset">Offset of the string</param>
+        /// <returns>The string at the given location</returns>
+        public static Task<string> ReadNullTerminatedStringAsync(this IReadOnlyBinaryDataAccessor accessor, long index, Encoding e) => accessor.ReadNullTerminatedStringAsync(index, e);
+
+        /// <summary>
+        /// Reads a string using the given encoding
+        /// </summary>
+        /// <param name="offset">Offset of the string</param>
+        /// <param name="length">Length in characters of the string</param>
+        /// <returns>The UTF-16 string at the given offset</returns>
+        public static string ReadString(this IReadOnlyBinaryDataAccessor accessor, long index, int length, Encoding e) => accessor.ReadString(index, length, e);
+
+        /// <summary>
+        /// Reads a string using the given encoding
+        /// </summary>
+        /// <param name="offset">Offset of the string</param>
+        /// <param name="length">Length in characters of the string</param>
+        /// <returns>The UTF-16 string at the given offset</returns>
+        public static Task<string> ReadStringAsync(this IReadOnlyBinaryDataAccessor accessor, long index, int length, Encoding e) => accessor.ReadStringAsync(index, length, e);
+        #endregion
+    }
 }
