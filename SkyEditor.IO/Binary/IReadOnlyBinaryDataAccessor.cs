@@ -88,7 +88,7 @@ namespace SkyEditor.IO.Binary
             };
         }
 
-#region Integer Reads
+#region Integer/Float Reads
 
         /// <summary>
         /// Reads a signed 16 bit little endian integer
@@ -197,9 +197,45 @@ namespace SkyEditor.IO.Binary
             ReadOnlyMemory<byte> bytes = await ReadMemoryAsync(offset, sizeof(ulong));
             return BinaryPrimitives.ReadUInt64LittleEndian(bytes.Span);
         }
-#endregion
 
-#region Big Endian Reads
+        /// <summary>
+        /// Reads a little endian single-precision floating point number
+        /// </summary>
+        /// <param name="offset">Offset of the float to read</param>
+        /// <returns>The float from the given location</returns>
+        float ReadSingle(long offset) => BitConverter.ToSingle(ReadSpan(offset, sizeof(float)));
+
+        /// <summary>
+        /// Reads a little endian single-precision floating point number
+        /// </summary>
+        /// <param name="offset">Offset of the float to read</param>
+        /// <returns>The float from the given location</returns>
+        async Task<float> ReadSingleAsync(long offset)
+        {
+            ReadOnlyMemory<byte> bytes = await ReadMemoryAsync(offset, sizeof(float));
+            return BitConverter.ToSingle(bytes.Span);
+        }
+
+        /// <summary>
+        /// Reads a little endian double-precision floating point number
+        /// </summary>
+        /// <param name="offset">Offset of the double to read</param>
+        /// <returns>The double from the given location</returns>
+        double ReadDouble(long offset) => BitConverter.ToDouble(ReadSpan(offset, sizeof(double)));
+
+        /// <summary>
+        /// Reads a little endian double-precision floating point number
+        /// </summary>
+        /// <param name="offset">Offset of the double to read</param>
+        /// <returns>The double from the given location</returns>
+        async Task<double> ReadDoubleAsync(long offset)
+        {
+            ReadOnlyMemory<byte> bytes = await ReadMemoryAsync(offset, sizeof(double));
+            return BitConverter.ToDouble(bytes.Span);
+        }
+        #endregion
+
+        #region Big Endian Reads
 
         /// <summary>
         /// Reads a signed 16 bit big endian integer
@@ -310,7 +346,7 @@ namespace SkyEditor.IO.Binary
         }
         #endregion
 
-#region String Reads
+        #region String Reads
 
         /// <summary>
         /// Reads a UTF-16 string
@@ -427,7 +463,7 @@ namespace SkyEditor.IO.Binary
     // Compatibility layer to allow the use of the interface's default implementation on all classes, without manually casting to the interface
     public static class IReadOnlyBinaryDataAccessorExtensions
     {
-        #region Integer Reads
+        #region Integer/Float Reads
 
         /// <summary>
         /// Reads a signed 16 bit little endian integer
@@ -512,6 +548,34 @@ namespace SkyEditor.IO.Binary
         /// <param name="offset">Offset of the integer to read.</param>
         /// <returns>The integer from the given location</returns>
         public static Task<ulong> ReadUInt64Async(this IReadOnlyBinaryDataAccessor accessor, long offset) => accessor.ReadUInt64Async(offset);
+
+        /// <summary>
+        /// Reads a little endian single-precision floating point number
+        /// </summary>
+        /// <param name="offset">Offset of the float to read</param>
+        /// <returns>The float from the given location</returns>
+        public static float ReadSingle(this IReadOnlyBinaryDataAccessor accessor, long offset) => accessor.ReadSingle(offset);
+
+        /// <summary>
+        /// Reads a little endian single-precision floating point number
+        /// </summary>
+        /// <param name="offset">Offset of the float to read</param>
+        /// <returns>The float from the given location</returns>
+        public static Task<float> ReadSingleAsync(this IReadOnlyBinaryDataAccessor accessor, long offset) => accessor.ReadSingleAsync(offset);
+
+        /// <summary>
+        /// Reads a little endian double-precision floating point number
+        /// </summary>
+        /// <param name="offset">Offset of the double to read</param>
+        /// <returns>The double from the given location</returns>
+        public static double ReadDouble(this IReadOnlyBinaryDataAccessor accessor, long offset) => accessor.ReadDouble(offset);
+
+        /// <summary>
+        /// Reads a little endian double-precision floating point number
+        /// </summary>
+        /// <param name="offset">Offset of the double to read</param>
+        /// <returns>The double from the given location</returns>
+        public static Task<double> ReadDoubleAsync(this IReadOnlyBinaryDataAccessor accessor, long offset) => accessor.ReadDoubleAsync(offset);
 
         #endregion
 
