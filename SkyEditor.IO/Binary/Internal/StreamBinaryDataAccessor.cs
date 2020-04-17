@@ -28,6 +28,13 @@ namespace SkyEditor.IO.Binary.Internal
 
         public long Length => SourceStream.Length;
 
+        public long Position
+        {
+            get => SourceStream.Position;
+            set => SourceStream.Position = value;
+        }
+
+        #region Random Reads
         public byte[] ReadArray()
         {
             if (Length > int.MaxValue)
@@ -129,6 +136,104 @@ namespace SkyEditor.IO.Binary.Internal
         {
             return ReadArray(index, length);
         }
+        #endregion
+
+        #region Sequential Reads
+
+        /// <summary>
+        /// Reads the next available byte. This method is not thread-safe.
+        /// </summary>
+        public byte ReadNextByte()
+        {
+            try
+            {
+                StreamSemaphore.Wait();
+                // No need to seek, reading from current position
+                return (byte)SourceStream.ReadByte();
+            }
+            finally
+            {
+                StreamSemaphore.Release();
+            }
+        }
+
+        /// <summary>
+        /// Reads the next available byte. This method is not thread-safe.
+        /// </summary>
+        public async Task<byte> ReadNextByteAsync()
+        {
+            try
+            {
+                await StreamSemaphore.WaitAsync();
+                // No need to seek, reading from current position
+                return (byte)SourceStream.ReadByte();
+            }
+            finally
+            {
+                StreamSemaphore.Release();
+            }
+        }
+
+        /// <summary>
+        /// Reads the next series of bytes. This method is not thread-safe.
+        /// </summary>
+        /// <param name="length">Number of bytes to read</param>
+        public byte[] ReadNextArray(int length)
+        {
+            try
+            {
+                StreamSemaphore.Wait();
+
+                byte[] buffer = new byte[length];
+                // No need to seek, reading from current position
+                SourceStream.Read(buffer, 0, length);
+                return buffer;
+            }
+            finally
+            {
+                StreamSemaphore.Release();
+            }
+        }
+
+        /// <summary>
+        /// Reads the next series of bytes. This method is not thread-safe.
+        /// </summary>
+        /// <param name="length">Number of bytes to read</param>
+        public async Task<byte[]> ReadNextArrayAsync(int length)
+        {
+            try
+            {
+                await StreamSemaphore.WaitAsync();
+
+                byte[] buffer = new byte[length];
+                // No need to seek, reading from current position
+                await SourceStream.ReadAsync(buffer, 0, length);
+                return buffer;
+            }
+            finally
+            {
+                StreamSemaphore.Release();
+            }
+        }
+
+        /// <summary>
+        /// Reads the next series of bytes. This method is not thread-safe.
+        /// </summary>
+        /// <param name="length">Number of bytes to read</param>
+        public ReadOnlySpan<byte> ReadNextSpan(int length)
+        {
+            return ReadNextArray(length);
+        }
+
+        /// <summary>
+        /// Reads the next series of bytes. This method is not thread-safe.
+        /// </summary>
+        /// <param name="length">Number of bytes to readd</param>
+        public async Task<ReadOnlyMemory<byte>> ReadNextMemoryAsync(int length)
+        {
+            return await ReadNextArrayAsync(length);
+        }
+        #endregion
 
         public void Write(byte[] value)
         {

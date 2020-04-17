@@ -14,6 +14,7 @@ namespace SkyEditor.IO.Binary.Internal
         private byte[] _rawData;
 
         public long Length => _rawData.LongLength;
+        public long Position { get; set; }
 
         public byte[] ReadArray()
         {

@@ -48,7 +48,9 @@ namespace SkyEditor.IO.Binary
 
         private long Offset { get; set; }
 
-        public long Length { get; private set; }
+        public long Length { get; }
+
+        public long Position { get; set; }
 
         public byte[] ReadArray()
         {

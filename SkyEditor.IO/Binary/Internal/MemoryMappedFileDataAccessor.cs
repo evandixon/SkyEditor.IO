@@ -16,6 +16,7 @@ namespace SkyEditor.IO.Binary.Internal
         private readonly MemoryMappedFile _file;
 
         public long Length { get; }
+        public long Position { get; set; }
 
         public byte[] ReadArray()
         {

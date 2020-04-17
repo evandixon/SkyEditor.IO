@@ -50,6 +50,8 @@ namespace SkyEditor.IO.Binary
 
         public long Length { get; private set; }
 
+        public long Position { get; set; }
+
         public byte[] ReadArray()
         {
             if (Length > int.MaxValue)

@@ -158,6 +158,8 @@ namespace SkyEditor.IO.Binary
 
         public long Length => Accessor.Length;
 
+        public long Position { get => Accessor.Position; set => Accessor.Position = value; }
+
         public byte[] ReadArray() => Accessor.ReadArray();
 
         public byte[] ReadArray(long index, int length) => Accessor.ReadArray(index, length);

@@ -12,7 +12,7 @@ namespace SkyEditor.IO.Binary
     /// <remarks>
     /// Thread safety may vary by implementation
     /// </remarks>
-    public interface IReadOnlyBinaryDataAccessor
+    public interface IReadOnlyBinaryDataAccessor : ISeekable
     {
         /// <summary>
         /// Length of the data, in bytes
@@ -38,6 +38,8 @@ namespace SkyEditor.IO.Binary
         /// Reads all of the available data
         /// </summary>
         Task<ReadOnlyMemory<byte>> ReadMemoryAsync();
+
+        #region Random Access
 
         /// <summary>
         /// Reads a byte at the given index
@@ -78,6 +80,74 @@ namespace SkyEditor.IO.Binary
         /// <param name="index">Index of the desired data</param>
         /// <param name="length">Length of data to read</param>
         Task<ReadOnlyMemory<byte>> ReadMemoryAsync(long index, int length);
+        #endregion
+
+        #region Sequential Access
+
+        /// <summary>
+        /// Reads the next available byte. This method is not thread-safe.
+        /// </summary>
+        byte ReadNextByte()
+        {
+            var value = ReadByte(Position);
+            Position += sizeof(byte);
+            return value;
+        }
+
+        /// <summary>
+        /// Reads the next available byte. This method is not thread-safe.
+        /// </summary>
+        async Task<byte> ReadNextByteAsync()
+        {
+            var value = await ReadByteAsync(Position);
+            Position += sizeof(byte);
+            return value;
+        }
+
+        /// <summary>
+        /// Reads the next series of bytes. This method is not thread-safe.
+        /// </summary>
+        /// <param name="length">Number of bytes to read</param>
+        byte[] ReadNextArray(int length)
+        {
+            var value = ReadArray(Position, length);
+            Position += value.Length;
+            return value;
+        }
+
+        /// <summary>
+        /// Reads the next series of bytes. This method is not thread-safe.
+        /// </summary>
+        /// <param name="length">Number of bytes to read</param>
+        ReadOnlySpan<byte> ReadNextSpan(int length)
+        {
+            var value = ReadSpan(Position, length);
+            Position += value.Length;
+            return value;
+        }
+
+        /// <summary>
+        /// Reads the next series of bytes. This method is not thread-safe.
+        /// </summary>
+        /// <param name="length">Number of bytes to read</param>
+        async Task<byte[]> ReadNextArrayAsync(int length)
+        {
+            var value = await ReadArrayAsync(Position, length);
+            Position += value.Length;
+            return value;
+        }
+
+        /// <summary>
+        /// Reads the next series of bytes. This method is not thread-safe.
+        /// </summary>
+        /// <param name="length">Number of bytes to readd</param>
+        async Task<ReadOnlyMemory<byte>> ReadNextMemoryAsync(int length)
+        {
+            var value = await ReadMemoryAsync(Position, length);
+            Position += value.Length;
+            return value;
+        }
+        #endregion
 
         IReadOnlyBinaryDataAccessor Slice(long offset, long length)
         {
@@ -88,7 +158,7 @@ namespace SkyEditor.IO.Binary
             };
         }
 
-#region Integer/Float Reads
+        #region Integer/Float Reads
 
         /// <summary>
         /// Reads a signed 16 bit little endian integer
@@ -314,7 +384,7 @@ namespace SkyEditor.IO.Binary
         /// </summary>
         /// <param name="offset">Offset of the integer to read.</param>
         /// <returns>The integer from the given location</returns>
-        uint ReadUInt32BigEndian(long offset) => BinaryPrimitives.ReadUInt32BigEndian(ReadSpan(offset,sizeof(uint)));
+        uint ReadUInt32BigEndian(long offset) => BinaryPrimitives.ReadUInt32BigEndian(ReadSpan(offset, sizeof(uint)));
 
         /// <summary>
         /// Reads an unsigned 32 bit big endian integer
@@ -457,7 +527,268 @@ namespace SkyEditor.IO.Binary
             ReadOnlyMemory<byte> bytes = await ReadMemoryAsync(index, length);
             return e.GetString(bytes.Span);
         }
-#endregion
+        #endregion
+
+        #region Sequential Integer/Float Reads
+
+        /// <summary>
+        /// Reads a signed 16 bit little endian integer
+        /// </summary>
+        /// <param name="offset">Offset of the integer to read.</param>
+        /// <returns>The integer from the given location</returns>
+        short ReadNextInt16() => BinaryPrimitives.ReadInt16LittleEndian(ReadNextSpan(sizeof(short)));
+
+        /// <summary>
+        /// Reads a signed 16 bit little endian integer
+        /// </summary>
+        /// <returns>The integer from the given location</returns>
+        async Task<short> ReadNextInt16Async()
+        {
+            ReadOnlyMemory<byte> bytes = await ReadNextMemoryAsync(sizeof(short));
+            return BinaryPrimitives.ReadInt16LittleEndian(bytes.Span);
+        }
+
+        /// <summary>
+        /// Reads a signed 32 bit little endian integer
+        /// </summary>
+        /// <param name="offset">Offset of the integer to read.</param>
+        /// <returns>The integer from the given location</returns>
+        int ReadNextInt32() => BinaryPrimitives.ReadInt32LittleEndian(ReadNextSpan(sizeof(int)));
+
+        /// <summary>
+        /// Reads a signed 32 bit little endian integer
+        /// </summary>
+        /// <returns>The integer from the given location</returns>
+        async Task<int> ReadNextInt32Async()
+        {
+            ReadOnlyMemory<byte> bytes = await ReadNextMemoryAsync(sizeof(int));
+            return BinaryPrimitives.ReadInt32LittleEndian(bytes.Span);
+        }
+
+        /// <summary>
+        /// Reads a signed 64 bit little endian integer
+        /// </summary>
+        /// <returns>The integer from the given location</returns>
+        long ReadNextInt64() => BinaryPrimitives.ReadInt64LittleEndian(ReadNextSpan(sizeof(long)));
+
+        /// <summary>
+        /// Reads a signed 64 bit little endian integer
+        /// </summary>
+        /// <returns>The integer from the given location</returns>
+        async Task<long> ReadNextInt64Async()
+        {
+            ReadOnlyMemory<byte> bytes = await ReadNextMemoryAsync(sizeof(long));
+            return BinaryPrimitives.ReadInt64LittleEndian(bytes.Span);
+        }
+
+        /// <summary>
+        /// Reads an unsigned 16 bit little endian integer
+        /// </summary>
+        /// <returns>The integer from the given location</returns>
+        ushort ReadNextUInt16() => BinaryPrimitives.ReadUInt16LittleEndian(ReadNextSpan(sizeof(ushort)));
+
+        /// <summary>
+        /// Reads an unsigned 16 bit little endian integer
+        /// </summary>
+        /// <returns>The integer from the given location</returns>
+        async Task<ushort> ReadNextUInt16Async()
+        {
+            ReadOnlyMemory<byte> bytes = await ReadNextMemoryAsync(sizeof(ushort));
+            return BinaryPrimitives.ReadUInt16LittleEndian(bytes.Span);
+        }
+
+        /// <summary>
+        /// Reads an unsigned 32 bit little endian integer
+        /// </summary>
+        /// <returns>The integer from the given location</returns>
+        uint ReadNextUInt32() => BinaryPrimitives.ReadUInt32LittleEndian(ReadNextSpan(sizeof(uint)));
+
+        /// <summary>
+        /// Reads an unsigned 32 bit little endian integer
+        /// </summary>
+        /// <returns>The integer from the given location</returns>
+        async Task<uint> ReadNextUInt32Async()
+        {
+            ReadOnlyMemory<byte> bytes = await ReadNextMemoryAsync(sizeof(uint));
+            return BinaryPrimitives.ReadUInt32LittleEndian(bytes.Span);
+        }
+
+        /// <summary>
+        /// Reads an unsigned 64 bit little endian integer
+        /// </summary>
+        /// <returns>The integer from the given location</returns>
+        ulong ReadNextUInt64() => BinaryPrimitives.ReadUInt64LittleEndian(ReadNextSpan(sizeof(ulong)));
+
+        /// <summary>
+        /// Reads an unsigned 64 bit little endian integer
+        /// </summary>
+        /// <returns>The integer from the given location</returns>
+        async Task<ulong> ReadNextUInt64Async()
+        {
+            ReadOnlyMemory<byte> bytes = await ReadNextMemoryAsync(sizeof(ulong));
+            return BinaryPrimitives.ReadUInt64LittleEndian(bytes.Span);
+        }
+
+        /// <summary>
+        /// Reads a little endian single-precision floating point number
+        /// </summary>
+        /// <param name="offset">Offset of the float to read</param>
+        /// <returns>The float from the given location</returns>
+        float ReadNextSingle(long offset) => BitConverter.ToSingle(ReadNextSpan(sizeof(float)));
+
+        /// <summary>
+        /// Reads a little endian single-precision floating point number
+        /// </summary>
+        /// <returns>The float from the given location</returns>
+        async Task<float> ReadNextSingleAsync()
+        {
+            ReadOnlyMemory<byte> bytes = await ReadNextMemoryAsync(sizeof(float));
+            return BitConverter.ToSingle(bytes.Span);
+        }
+
+        /// <summary>
+        /// Reads a little endian double-precision floating point number
+        /// </summary>
+        /// <returns>The double from the given location</returns>
+        double ReadNextDouble() => BitConverter.ToDouble(ReadNextSpan(sizeof(double)));
+
+        /// <summary>
+        /// Reads a little endian double-precision floating point number
+        /// </summary>
+        /// <returns>The double from the given location</returns>
+        async Task<double> ReadNextDoubleAsync()
+        {
+            ReadOnlyMemory<byte> bytes = await ReadNextMemoryAsync(sizeof(double));
+            return BitConverter.ToDouble(bytes.Span);
+        }
+        #endregion
+
+        #region Sequential Big Endian Reads
+
+        /// <summary>
+        /// Reads a signed 16 bit big endian integer
+        /// </summary>
+        short ReadNextInt16BigEndian() => BinaryPrimitives.ReadInt16BigEndian(ReadNextSpan(sizeof(short)));
+
+        /// <summary>
+        /// Reads a signed 16 bit big endian integer
+        /// </summary>
+        async Task<short> ReadNextInt16BigEndianAsync()
+        {
+            ReadOnlyMemory<byte> bytes = await ReadNextMemoryAsync(sizeof(short));
+            return BinaryPrimitives.ReadInt16BigEndian(bytes.Span);
+        }
+
+        /// <summary>
+        /// Reads a signed 32 bit big endian integer
+        /// </summary>
+        int ReadNextInt32BigEndian() => BinaryPrimitives.ReadInt32BigEndian(ReadNextSpan(sizeof(int)));
+
+        /// <summary>
+        /// Reads a signed 32 bit big endian integer
+        /// </summary>
+        async Task<int> ReadNextInt32BigEndianAsync()
+        {
+            ReadOnlyMemory<byte> bytes = await ReadNextMemoryAsync(sizeof(int));
+            return BinaryPrimitives.ReadInt32BigEndian(bytes.Span);
+        }
+
+        /// <summary>
+        /// Reads a signed 64 bit big endian integer
+        /// </summary>
+        long ReadNextInt64BigEndian() => BinaryPrimitives.ReadInt64BigEndian(ReadNextSpan(sizeof(long)));
+
+        /// <summary>
+        /// Reads a signed 64 bit big endian integer
+        /// </summary>
+        async Task<long> ReadNextInt64BigEndianAsync()
+        {
+            ReadOnlyMemory<byte> bytes = await ReadNextMemoryAsync(sizeof(long));
+            return BinaryPrimitives.ReadInt64BigEndian(bytes.Span);
+        }
+
+        /// <summary>
+        /// Reads an unsigned 16 bit big endian integer
+        /// </summary>
+        ushort ReadNextUInt16BigEndian() => BinaryPrimitives.ReadUInt16BigEndian(ReadNextSpan(sizeof(ushort)));
+
+        /// <summary>
+        /// Reads an unsigned 16 bit big endian integer
+        /// </summary>
+        async Task<ushort> ReadNextUInt16BigEndianAsync()
+        {
+            ReadOnlyMemory<byte> bytes = await ReadNextMemoryAsync(sizeof(ushort));
+            return BinaryPrimitives.ReadUInt16BigEndian(bytes.Span);
+        }
+
+        /// <summary>
+        /// Reads an unsigned 32 bit big endian integer
+        /// </summary>
+        uint ReadNextUInt32BigEndian() => BinaryPrimitives.ReadUInt32BigEndian(ReadNextSpan(sizeof(uint)));
+
+        /// <summary>
+        /// Reads an unsigned 32 bit big endian integer
+        /// </summary>
+        async Task<uint> ReadNextUInt32BigEndianAsync()
+        {
+            ReadOnlyMemory<byte> bytes = await ReadNextMemoryAsync(sizeof(uint));
+            return BinaryPrimitives.ReadUInt32BigEndian(bytes.Span);
+        }
+
+        /// <summary>
+        /// Reads an unsigned 64 bit big endian integer
+        /// </summary>
+        ulong ReadNextUInt64BigEndian() => BinaryPrimitives.ReadUInt64BigEndian(ReadNextSpan(sizeof(ulong)));
+
+        /// <summary>
+        /// Reads an unsigned 64 bit big endian integer
+        /// </summary>
+        async Task<ulong> ReadNextUInt64BigEndianAsync()
+        {
+            ReadOnlyMemory<byte> bytes = await ReadNextMemoryAsync(sizeof(ulong));
+            return BinaryPrimitives.ReadUInt64BigEndian(bytes.Span);
+        }
+        #endregion
+
+        #region Sequential String Reads
+
+        /// <summary>
+        /// Reads a UTF-16 string
+        /// </summary>
+        /// <param name="offset">Offset of the string</param>
+        /// <param name="length">Length in characters of the string</param>
+        /// <returns>The UTF-16 string at the given offset</returns>
+        string ReadNextUnicodeString(long index, int length) => Encoding.Unicode.GetString(ReadSpan(index, length * 2));
+
+        /// <summary>
+        /// Reads a UTF-16 string
+        /// </summary>
+        /// <param name="length">Length in characters of the string</param>
+        /// <returns>The next UTF-16 string</returns>
+        async Task<string> ReadNextUnicodeStringAsync(int length)
+        {
+            ReadOnlyMemory<byte> bytes = await ReadNextMemoryAsync(length * 2);
+            return Encoding.Unicode.GetString(bytes.Span);
+        }
+
+        /// <summary>
+        /// Reads a string using the given encoding
+        /// </summary>
+        /// <param name="length">Length in characters of the string</param>
+        /// <returns>The next UTF-16 string</returns>
+        string ReadNextString(int length, Encoding e) => e.GetString(ReadNextSpan(length));
+
+        /// <summary>
+        /// Reads a string using the given encoding
+        /// </summary>
+        /// <param name="length">Length in characters of the string</param>
+        /// <returns>The next UTF-16 string</returns>
+        async Task<string> ReadNextStringAsync(int length, Encoding e)
+        {
+            ReadOnlyMemory<byte> bytes = await ReadNextMemoryAsync(length);
+            return e.GetString(bytes.Span);
+        }
+        #endregion
     }
 
     // Compatibility layer to allow the use of the interface's default implementation on all classes, without manually casting to the interface
@@ -727,6 +1058,187 @@ namespace SkyEditor.IO.Binary
         /// <param name="length">Length in characters of the string</param>
         /// <returns>The UTF-16 string at the given offset</returns>
         public static Task<string> ReadStringAsync(this IReadOnlyBinaryDataAccessor accessor, long index, int length, Encoding e) => accessor.ReadStringAsync(index, length, e);
+        #endregion
+
+        #region Sequential Integer/Float Reads
+
+        /// <summary>
+        /// Reads a signed 16 bit little endian integer
+        /// </summary>
+        /// <param name="offset">Offset of the integer to read.</param>
+        public static short ReadNextInt16(this IReadOnlyBinaryDataAccessor accessor) => accessor.ReadNextInt16();
+
+        /// <summary>
+        /// Reads a signed 16 bit little endian integer
+        /// </summary>
+        public static Task<short> ReadNextInt16Async(this IReadOnlyBinaryDataAccessor accessor) => accessor.ReadNextInt16Async();
+
+        /// <summary>
+        /// Reads a signed 32 bit little endian integer
+        /// </summary>
+        /// <param name="offset">Offset of the integer to read.</param>
+        public static int ReadNextInt32(this IReadOnlyBinaryDataAccessor accessor) => accessor.ReadNextInt32();
+
+        /// <summary>
+        /// Reads a signed 32 bit little endian integer
+        /// </summary>
+        public static Task<int> ReadNextInt32Async(this IReadOnlyBinaryDataAccessor accessor) => accessor.ReadNextInt32Async();
+
+        /// <summary>
+        /// Reads a signed 64 bit little endian integer
+        /// </summary>
+        public static long ReadNextInt64(this IReadOnlyBinaryDataAccessor accessor) => accessor.ReadNextInt64();
+
+        /// <summary>
+        /// Reads a signed 64 bit little endian integer
+        /// </summary>
+        public static Task<long> ReadNextInt64Async(this IReadOnlyBinaryDataAccessor accessor) => accessor.ReadNextInt64Async();
+
+        /// <summary>
+        /// Reads an unsigned 16 bit little endian integer
+        /// </summary>
+        public static ushort ReadNextUInt16(this IReadOnlyBinaryDataAccessor accessor) => accessor.ReadNextUInt16();
+
+        /// <summary>
+        /// Reads an unsigned 16 bit little endian integer
+        /// </summary>
+        public static Task<ushort> ReadNextUInt16Async(this IReadOnlyBinaryDataAccessor accessor) => accessor.ReadNextUInt16Async();
+
+        /// <summary>
+        /// Reads an unsigned 32 bit little endian integer
+        /// </summary>
+        public static uint ReadNextUInt32(this IReadOnlyBinaryDataAccessor accessor) => accessor.ReadNextUInt32();
+
+        /// <summary>
+        /// Reads an unsigned 32 bit little endian integer
+        /// </summary>
+        public static Task<uint> ReadNextUInt32Async(this IReadOnlyBinaryDataAccessor accessor) => accessor.ReadNextUInt32Async();
+
+        /// <summary>
+        /// Reads an unsigned 64 bit little endian integer
+        /// </summary>
+        public static ulong ReadNextUInt64(this IReadOnlyBinaryDataAccessor accessor) => accessor.ReadNextUInt64();
+
+        /// <summary>
+        /// Reads an unsigned 64 bit little endian integer
+        /// </summary>
+        public static Task<ulong> ReadNextUInt64Async(this IReadOnlyBinaryDataAccessor accessor) => accessor.ReadNextUInt64Async();
+
+        /// <summary>
+        /// Reads a little endian single-precision floating point number
+        /// </summary>
+        /// <param name="offset">Offset of the float to read</param>
+        public static float ReadNextSingle(this IReadOnlyBinaryDataAccessor accessor) => accessor.ReadNextSingle();
+
+        /// <summary>
+        /// Reads a little endian single-precision floating point number
+        /// </summary>
+        public static Task<float> ReadNextSingleAsync(this IReadOnlyBinaryDataAccessor accessor) => accessor.ReadNextSingleAsync();
+
+        /// <summary>
+        /// Reads a little endian double-precision floating point number
+        /// </summary>
+        public static double ReadNextDouble(this IReadOnlyBinaryDataAccessor accessor) => accessor.ReadNextDouble();
+
+        /// <summary>
+        /// Reads a little endian double-precision floating point number
+        /// </summary>
+        public static Task<double> ReadNextDoubleAsync(this IReadOnlyBinaryDataAccessor accessor) => accessor.ReadNextDoubleAsync();
+        #endregion
+
+        #region Sequential Big Endian Reads
+
+        /// <summary>
+        /// Reads a signed 16 bit big endian integer
+        /// </summary>
+        public static short ReadNextInt16BigEndian(this IReadOnlyBinaryDataAccessor accessor) => accessor.ReadNextInt16BigEndian();
+
+        /// <summary>
+        /// Reads a signed 16 bit big endian integer
+        /// </summary>
+        public static Task<short> ReadNextInt16BigEndianAsync(this IReadOnlyBinaryDataAccessor accessor) => accessor.ReadNextInt16BigEndianAsync();
+
+        /// <summary>
+        /// Reads a signed 32 bit big endian integer
+        /// </summary>
+        public static int ReadNextInt32BigEndian(this IReadOnlyBinaryDataAccessor accessor) => accessor.ReadNextInt32BigEndian();
+
+        /// <summary>
+        /// Reads a signed 32 bit big endian integer
+        /// </summary>
+        public static Task<int> ReadNextInt32BigEndianAsync(this IReadOnlyBinaryDataAccessor accessor) => accessor.ReadNextInt32BigEndianAsync();
+
+        /// <summary>
+        /// Reads a signed 64 bit big endian integer
+        /// </summary>
+        public static long ReadNextInt64BigEndian(this IReadOnlyBinaryDataAccessor accessor) => accessor.ReadNextInt64BigEndian();
+
+        /// <summary>
+        /// Reads a signed 64 bit big endian integer
+        /// </summary>
+        public static Task<long> ReadNextInt64BigEndianAsync(this IReadOnlyBinaryDataAccessor accessor) => accessor.ReadNextInt64BigEndianAsync();
+
+        /// <summary>
+        /// Reads an unsigned 16 bit big endian integer
+        /// </summary>
+        public static ushort ReadNextUInt16BigEndian(this IReadOnlyBinaryDataAccessor accessor) => accessor.ReadNextUInt16BigEndian();
+
+        /// <summary>
+        /// Reads an unsigned 16 bit big endian integer
+        /// </summary>
+        public static Task<ushort> ReadNextUInt16BigEndianAsync(this IReadOnlyBinaryDataAccessor accessor) => accessor.ReadNextUInt16BigEndianAsync();
+
+        /// <summary>
+        /// Reads an unsigned 32 bit big endian integer
+        /// </summary>
+        public static uint ReadNextUInt32BigEndian(this IReadOnlyBinaryDataAccessor accessor) => accessor.ReadNextUInt32BigEndian();
+
+        /// <summary>
+        /// Reads an unsigned 32 bit big endian integer
+        /// </summary>
+        public static Task<uint> ReadNextUInt32BigEndianAsync(this IReadOnlyBinaryDataAccessor accessor) => accessor.ReadNextUInt32BigEndianAsync();
+
+        /// <summary>
+        /// Reads an unsigned 64 bit big endian integer
+        /// </summary>
+        public static ulong ReadNextUInt64BigEndian(this IReadOnlyBinaryDataAccessor accessor) => accessor.ReadNextUInt64BigEndian();
+
+        /// <summary>
+        /// Reads an unsigned 64 bit big endian integer
+        /// </summary>
+        public static Task<ulong> ReadNextUInt64BigEndianAsync(this IReadOnlyBinaryDataAccessor accessor) => accessor.ReadNextUInt64BigEndianAsync();
+        #endregion
+
+        #region Sequential String Reads
+
+        /// <summary>
+        /// Reads a UTF-16 string
+        /// </summary>
+        /// <param name="offset">Offset of the string</param>
+        /// <param name="length">Length in characters of the string</param>
+        /// <returns>The UTF-16 string at the given offset</returns>
+        public static string ReadNextUnicodeString(this IReadOnlyBinaryDataAccessor accessor, int length) => accessor.ReadNextUnicodeString(length);
+
+        /// <summary>
+        /// Reads a UTF-16 string
+        /// </summary>
+        /// <param name="length">Length in characters of the string</param>
+        /// <returns>The next UTF-16 string</returns>
+        public static Task<string> ReadNextUnicodeStringAsync(this IReadOnlyBinaryDataAccessor accessor, int length) => accessor.ReadNextUnicodeStringAsync(length);
+
+        /// <summary>
+        /// Reads a string using the given encoding
+        /// </summary>
+        /// <param name="length">Length in characters of the string</param>
+        /// <returns>The next UTF-16 string</returns>
+        public static string ReadNextString(this IReadOnlyBinaryDataAccessor accessor, int length, Encoding e) => accessor.ReadNextString(length, e);
+
+        /// <summary>
+        /// Reads a string using the given encoding
+        /// </summary>
+        /// <param name="length">Length in characters of the string</param>
+        /// <returns>The next UTF-16 string</returns>
+        public static Task<string> ReadNextStringAsync(this IReadOnlyBinaryDataAccessor accessor, int length, Encoding e) => accessor.ReadNextStringAsync(length, e);
         #endregion
     }
 }
