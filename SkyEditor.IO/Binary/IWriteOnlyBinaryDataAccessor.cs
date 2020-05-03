@@ -120,11 +120,11 @@ namespace SkyEditor.IO.Binary
             };
         }
 
-#region Integer Writes
+        #region Integer Writes
         /// <summary>
         /// Writes a signed 16 bit little endian integer
         /// </summary>
-        /// <param name="offset">Offset of the integer to write.</param>
+        /// <param name="offset">Offset to which to write the binary data</param>
         /// <param name="value">The integer to write</param>
         void WriteInt16(long offset, short value)
         {
@@ -136,7 +136,7 @@ namespace SkyEditor.IO.Binary
         /// <summary>
         /// Writes a signed 16 bit little endian integer
         /// </summary>
-        /// <param name="offset">Offset of the integer to write.</param>
+        /// <param name="offset">Offset to which to write the binary data</param>
         /// <param name="value">The integer to write</param>
         async Task WriteInt16Async(long offset, short value)
         {
@@ -148,7 +148,7 @@ namespace SkyEditor.IO.Binary
         /// <summary>
         /// Writes a signed 32 bit little endian integer
         /// </summary>
-        /// <param name="offset">Offset of the integer to write.</param>
+        /// <param name="offset">Offset to which to write the binary data</param>
         /// <param name="value">The integer to write</param>
         void WriteInt32(long offset, int value)
         {
@@ -160,7 +160,7 @@ namespace SkyEditor.IO.Binary
         /// <summary>
         /// Writes a signed 32 bit little endian integer
         /// </summary>
-        /// <param name="offset">Offset of the integer to write.</param>
+        /// <param name="offset">Offset to which to write the binary data</param>
         /// <param name="value">The integer to write</param>
         async Task WriteInt32Async(long offset, int value)
         {
@@ -172,7 +172,7 @@ namespace SkyEditor.IO.Binary
         /// <summary>
         /// Writes a signed 64 bit little endian integer
         /// </summary>
-        /// <param name="offset">Offset of the integer to write.</param>
+        /// <param name="offset">Offset to which to write the binary data</param>
         /// <param name="value">The integer to write</param>
         void WriteInt64(long offset, long value)
         {
@@ -184,7 +184,7 @@ namespace SkyEditor.IO.Binary
         /// <summary>
         /// Writes a signed 64 bit little endian integer
         /// </summary>
-        /// <param name="offset">Offset of the integer to write.</param>
+        /// <param name="offset">Offset to which to write the binary data</param>
         /// <param name="value">The integer to write</param>
         async Task WriteInt64Async(long offset, long value)
         {
@@ -196,7 +196,7 @@ namespace SkyEditor.IO.Binary
         /// <summary>
         /// Writes an unsigned 16 bit little endian integer
         /// </summary>
-        /// <param name="offset">Offset of the integer to write.</param>
+        /// <param name="offset">Offset to which to write the binary data</param>
         /// <param name="value">The integer to write</param>
         void WriteUInt16(long offset, ushort value)
         {
@@ -208,7 +208,7 @@ namespace SkyEditor.IO.Binary
         /// <summary>
         /// Writes an unsigned 16 bit little endian integer
         /// </summary>
-        /// <param name="offset">Offset of the integer to write.</param>
+        /// <param name="offset">Offset to which to write the binary data</param>
         /// <param name="value">The integer to write</param>
         async Task WriteUInt16Async(long offset, ushort value)
         {
@@ -220,7 +220,7 @@ namespace SkyEditor.IO.Binary
         /// <summary>
         /// Writes an unsigned 32 bit little endian integer
         /// </summary>
-        /// <param name="offset">Offset of the integer to write.</param>
+        /// <param name="offset">Offset to which to write the binary data</param>
         /// <param name="value">The integer to write</param>
         void WriteUInt32(long offset, uint value)
         {
@@ -232,7 +232,7 @@ namespace SkyEditor.IO.Binary
         /// <summary>
         /// Writes an unsigned 32 bit little endian integer
         /// </summary>
-        /// <param name="offset">Offset of the integer to write.</param>
+        /// <param name="offset">Offset to which to write the binary data</param>
         /// <param name="value">The integer to write</param>
         async Task WriteUInt32Async(long offset, uint value)
         {
@@ -244,7 +244,7 @@ namespace SkyEditor.IO.Binary
         /// <summary>
         /// Writes an unsigned 64 bit little endian integer
         /// </summary>
-        /// <param name="offset">Offset of the integer to write.</param>
+        /// <param name="offset">Offset to which to write the binary data</param>
         /// <param name="value">The integer to write</param>
         void WriteUInt64(long offset, ulong value)
         {
@@ -256,13 +256,57 @@ namespace SkyEditor.IO.Binary
         /// <summary>
         /// Writes an unsigned 64 bit little endian integer
         /// </summary>
-        /// <param name="offset">Offset of the integer to write.</param>
+        /// <param name="offset">Offset to which to write the binary data</param>
         /// <param name="value">The integer to write</param>
         async Task WriteUInt64Async(long offset, ulong value)
         {
             Memory<byte> bytes = new byte[sizeof(ulong)];
             BinaryPrimitives.WriteUInt64LittleEndian(bytes.Span, value);
             await WriteAsync(offset, sizeof(ulong), bytes);
+        }
+
+        /// <summary>
+        /// Writes a little endian single-precision floating point number
+        /// </summary>
+        /// <param name="offset">Offset to which to write the binary data</param>
+        /// <param name="value">The number to write</param>
+        void WriteSingle(long offset, float value)
+        {
+            var data = BitConverter.GetBytes(value);
+            Write(offset, data);
+        }
+
+        /// <summary>
+        /// Writes a little endian single-precision floating point number
+        /// </summary>
+        /// <param name="offset">Offset to which to write the binary data</param>
+        /// <param name="value">The number to write</param>
+        async Task WriteSingleAsync(long offset, float value)
+        {
+            var data = BitConverter.GetBytes(value);
+            await WriteAsync(offset, data);
+        }
+
+        /// <summary>
+        /// Writes a little endian double-precision floating point number
+        /// </summary>
+        /// <param name="offset">Offset to which to write the binary data</param>
+        /// <param name="value">The number to write</param>
+        void WriteDouble(long offset, double value)
+        {
+            var data = BitConverter.GetBytes(value);
+            Write(offset, data);
+        }
+
+        /// <summary>
+        /// Writes a little endian double-precision floating point number
+        /// </summary>
+        /// <param name="offset">Offset to which to write the binary data</param>
+        /// <param name="value">The number to write</param>
+        async Task WriteDoubleAsync(long offset, double value)
+        {
+            var data = BitConverter.GetBytes(value);
+            await WriteAsync(offset, data);
         }
 #endregion
 
@@ -401,6 +445,34 @@ namespace SkyEditor.IO.Binary
         /// <param name="offset">Offset of the integer to write.</param>
         /// <param name="value">The integer to write</param>
         public static Task WriteUInt64Async(this IWriteOnlyBinaryDataAccessor accessor, long offset, ulong value) => accessor.WriteUInt64Async(offset, value);
+
+        /// <summary>
+        /// Writes a little endian single-precision floating point number
+        /// </summary>
+        /// <param name="offset">Offset to which to write the binary data</param>
+        /// <param name="value">The number to write</param>
+        public static void WriteSingle(this IWriteOnlyBinaryDataAccessor accessor, long offset, float value) => accessor.WriteSingle(offset, value);
+
+        /// <summary>
+        /// Writes a little endian single-precision floating point number
+        /// </summary>
+        /// <param name="offset">Offset to which to write the binary data</param>
+        /// <param name="value">The number to write</param>
+        public static Task WriteSingleAsync(this IWriteOnlyBinaryDataAccessor accessor, long offset, float value) => accessor.WriteSingleAsync(offset, value);
+
+        /// <summary>
+        /// Writes a little endian double-precision floating point number
+        /// </summary>
+        /// <param name="offset">Offset to which to write the binary data</param>
+        /// <param name="value">The number to write</param>
+        public static void WriteDouble(this IWriteOnlyBinaryDataAccessor accessor, long offset, double value) => accessor.WriteDouble(offset, value);
+
+        /// <summary>
+        /// Writes a little endian double-precision floating point number
+        /// </summary>
+        /// <param name="offset">Offset to which to write the binary data</param>
+        /// <param name="value">The number to write</param>
+        public static Task WriteDoubleAsync(this IWriteOnlyBinaryDataAccessor accessor, long offset, double value) => accessor.WriteDoubleAsync(offset, value);
         #endregion
 
         #region String Writes
