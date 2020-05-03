@@ -233,7 +233,10 @@ namespace SkyEditor.IO.Binary
                 throw new InvalidOperationException(Properties.Resources.BinaryFile_NotAllowedToCloseFile);
             }
 
-            Accessor.Dispose();
+            if (Accessor is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
 
             using (var stream = FileSystem.OpenFile(Filename))
             {
@@ -245,7 +248,10 @@ namespace SkyEditor.IO.Binary
 
         public virtual void Dispose()
         {
-            Accessor.Dispose();
+            if (Accessor is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
         }
     }
 }

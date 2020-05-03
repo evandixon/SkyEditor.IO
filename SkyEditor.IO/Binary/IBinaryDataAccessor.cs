@@ -2,9 +2,9 @@
 
 namespace SkyEditor.IO.Binary
 {
-    public interface IBinaryDataAccessor : IReadOnlyBinaryDataAccessor, IWriteOnlyBinaryDataAccessor, IDisposable
+    public interface IBinaryDataAccessor : IReadOnlyBinaryDataAccessor, IWriteOnlyBinaryDataAccessor
     {
-        new IBinaryDataAccessor Slice(long offset, long length)
+        new public IBinaryDataAccessor Slice(long offset, long length)
         {
             return this switch
             {
@@ -12,10 +12,10 @@ namespace SkyEditor.IO.Binary
                 _ => new BinaryDataAccessorReference(this, offset, length),
             };
         }
+    }
 
-        void IDisposable.Dispose()
-        {
-            return;
-        }
+    public static class IBinaryDataAccessorExtensions 
+    {
+        public static IBinaryDataAccessor Slice(this IBinaryDataAccessor accessor, long offset, long length) => accessor.Slice(offset, length);
     }
 }
