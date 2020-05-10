@@ -3,27 +3,27 @@ using System.Threading.Tasks;
 
 namespace SkyEditor.IO.Binary.Internal
 {
-    internal class ArrayBinaryDataAccessor : IVariableLengthBinaryDataAccessor
+    internal class MemoryBinaryDataAccessor : IBinaryDataAccessor
     {
-        public ArrayBinaryDataAccessor(byte[] rawData)
+        public MemoryBinaryDataAccessor(Memory<byte> rawData)
         {
-            _rawData = rawData ?? throw new ArgumentNullException(nameof(rawData));
+            _rawData = rawData;
         }
 
-        private byte[] _rawData;
+        private readonly Memory<byte> _rawData;
 
-        public long Length => _rawData.LongLength;
+        public long Length => _rawData.Length;
         public long Position { get; set; }
 
         public byte[] ReadArray()
         {
-            return _rawData;
+            return _rawData.ToArray();
         }
 
         public byte[] ReadArray(long index, int length)
         {
             int end = checked((int)(index + length));
-            return _rawData.AsSpan().Slice((int)index, end).ToArray();
+            return _rawData.Slice((int)index, end).ToArray();
         }
 
         public Task<byte[]> ReadArrayAsync()
@@ -38,7 +38,7 @@ namespace SkyEditor.IO.Binary.Internal
 
         public byte ReadByte(long index)
         {
-            return _rawData[index];
+            return _rawData.Span[(int)index];
         }
 
         public Task<byte> ReadByteAsync(long index)
@@ -55,7 +55,7 @@ namespace SkyEditor.IO.Binary.Internal
         {
             if (index < int.MaxValue)
             {
-                return _rawData.AsMemory().Slice((int)index, length);
+                return _rawData.Slice((int)index, length);
             }
             else
             {
@@ -75,14 +75,14 @@ namespace SkyEditor.IO.Binary.Internal
 
         public ReadOnlySpan<byte> ReadSpan()
         {
-            return _rawData.AsSpan();
+            return _rawData.Span;
         }
 
         public ReadOnlySpan<byte> ReadSpan(long index, int length)
-        {           
+        {
             if (index < int.MaxValue)
             {
-                return _rawData.AsSpan().Slice((int)index, length);
+                return _rawData.Span.Slice((int)index, length);
             }
             else
             {
@@ -92,7 +92,7 @@ namespace SkyEditor.IO.Binary.Internal
 
         public void Write(byte[] value)
         {
-            value.CopyTo(_rawData, 0);
+            value.CopyTo(_rawData);
         }
 
         public void Write(ReadOnlyMemory<byte> value)
@@ -102,38 +102,24 @@ namespace SkyEditor.IO.Binary.Internal
 
         public void Write(ReadOnlySpan<byte> value)
         {
-            value.CopyTo(_rawData);
+            value.CopyTo(_rawData.Span);
         }
 
         public void Write(long index, byte value)
         {
-            _rawData[index] = value;
+            _rawData.Span[(int)index] = value;
         }
 
         public void Write(long index, int length, byte[] value)
         {
             var toCopy = value.AsMemory().Slice(0, length);
-            if (index < int.MaxValue)
-            {
-                toCopy.CopyTo(_rawData.AsMemory().Slice((int)index, length));
-            }
-            else
-            {
-                toCopy.ToArray().CopyTo(_rawData, index);
-            }
+            toCopy.CopyTo(_rawData.Slice((int)index, length));
         }
 
         public void Write(long index, int length, ReadOnlySpan<byte> value)
         {
             var toCopy = value.Slice(0, length);
-            if (index < int.MaxValue)
-            {
-                toCopy.CopyTo(_rawData.AsSpan().Slice((int)index, length));
-            }
-            else
-            {
-                toCopy.ToArray().CopyTo(_rawData, index);
-            }
+            toCopy.CopyTo(_rawData.Span.Slice((int)index, length));
         }
 
         public Task WriteAsync(byte[] value)
@@ -175,17 +161,7 @@ namespace SkyEditor.IO.Binary.Internal
         public IBinaryDataAccessor Slice(long index, long length)
         {
             int end = checked((int)(index + length));
-            return new MemoryBinaryDataAccessor(_rawData.AsMemory().Slice((int)index, end));
-        }
-
-        public void SetLength(long length)
-        {
-            if (length > int.MaxValue)
-            {
-                throw new NotSupportedException(Properties.Resources.BinaryFile_SetLength_SizeToLarge);
-            }
-
-            Array.Resize(ref _rawData, (int)length);
+            return new MemoryBinaryDataAccessor(_rawData.Slice((int)index, end));
         }
     }
 }

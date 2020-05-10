@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace SkyEditor.IO.Binary.Internal
 {
-    internal class StreamBinaryDataAccessor : IVariableLengthBinaryDataAccessor
+    internal class StreamBinaryDataAccessor : IVariableLengthBinaryDataAccessor, IReadOnlyBinarySequentialDataAccessor
     {
         public StreamBinaryDataAccessor(Stream stream)
         {
@@ -59,7 +59,7 @@ namespace SkyEditor.IO.Binary.Internal
             finally
             {
                 StreamSemaphore.Release();
-            }            
+            }
         }
 
         public async Task<byte[]> ReadArrayAsync()
@@ -246,22 +246,29 @@ namespace SkyEditor.IO.Binary.Internal
             finally
             {
                 StreamSemaphore.Release();
-            }            
+            }
         }
 
         public void Write(ReadOnlySpan<byte> value)
         {
             try
             {
+#if NETSTANDARD2_0
+                var buffer = value.ToArray();
+                StreamSemaphore.Wait();
+                SourceStream.Seek(0, SeekOrigin.Begin);
+                SourceStream.Write(buffer, 0, buffer.Length);
+#else
                 StreamSemaphore.Wait();
                 SourceStream.Seek(0, SeekOrigin.Begin);
                 SourceStream.Write(value);
+#endif
             }
             finally
             {
                 StreamSemaphore.Release();
             }
-        }
+        }        
 
         public void Write(long index, byte value)
         {
@@ -295,9 +302,16 @@ namespace SkyEditor.IO.Binary.Internal
         {
             try
             {
+#if NETSTANDARD2_0
+                var buffer = value.ToArray();
+                StreamSemaphore.Wait();
+                SourceStream.Seek(index, SeekOrigin.Begin);
+                SourceStream.Write(buffer, 0, length);
+#else
                 StreamSemaphore.Wait();
                 SourceStream.Seek(index, SeekOrigin.Begin);
                 SourceStream.Write(value.Slice(0, length));
+#endif
             }
             finally
             {
@@ -323,9 +337,16 @@ namespace SkyEditor.IO.Binary.Internal
         {
             try
             {
+#if NETSTANDARD2_0
+                var buffer = value.ToArray();
+                StreamSemaphore.Wait();
+                SourceStream.Seek(0, SeekOrigin.Begin);
+                await SourceStream.WriteAsync(buffer, 0, buffer.Length);
+#else
                 await StreamSemaphore.WaitAsync();
                 SourceStream.Seek(0, SeekOrigin.Begin);
                 await SourceStream.WriteAsync(value);
+#endif
             }
             finally
             {
@@ -365,9 +386,16 @@ namespace SkyEditor.IO.Binary.Internal
         {
             try
             {
+#if NETSTANDARD2_0
+                var buffer = value.ToArray();
+                StreamSemaphore.Wait();
+                SourceStream.Seek(index, SeekOrigin.Begin);
+                await SourceStream.WriteAsync(buffer, 0, length);
+#else
                 await StreamSemaphore.WaitAsync();
                 SourceStream.Seek(index, SeekOrigin.Begin);
                 await SourceStream.WriteAsync(value.Slice(0, length));
+#endif
             }
             finally
             {

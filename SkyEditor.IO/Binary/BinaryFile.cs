@@ -22,7 +22,12 @@ namespace SkyEditor.IO.Binary
 
         public BinaryFile(byte[] rawData)
         {
-            Accessor = new InMemoryBinaryDataAccessor(rawData);
+            Accessor = new ArrayBinaryDataAccessor(rawData);
+        }
+
+        public BinaryFile(Memory<byte> rawData)
+        {
+            Accessor = new MemoryBinaryDataAccessor(rawData);
         }
 
         public BinaryFile(MemoryMappedFile memoryMappedFile, int fileLength)
@@ -47,7 +52,7 @@ namespace SkyEditor.IO.Binary
             {
                 try
                 {
-                    return new InMemoryBinaryDataAccessor(fileSystem.ReadAllBytes(filename));
+                    return new ArrayBinaryDataAccessor(fileSystem.ReadAllBytes(filename));
                 }
                 catch (OutOfMemoryException)
                 {
@@ -96,8 +101,11 @@ namespace SkyEditor.IO.Binary
 
             switch (Accessor)
             {
-                case InMemoryBinaryDataAccessor inMemoryAccessor:
-                    fileSystem.WriteAllBytes(filename, inMemoryAccessor.ReadArray());
+                case ArrayBinaryDataAccessor arrayAccessor:
+                    fileSystem.WriteAllBytes(filename, arrayAccessor.ReadArray());
+                    break;
+                case MemoryBinaryDataAccessor memoryAccessor:
+                    fileSystem.WriteAllBytes(filename, memoryAccessor.ReadArray());
                     break;
                 case MemoryMappedFileDataAccessor memoryMappedAccessor:
                     if (this.Filename == filename)
@@ -140,7 +148,7 @@ namespace SkyEditor.IO.Binary
                 throw new InvalidOperationException(Properties.Resources.BinaryFile_ErrorSavedWithoutFilenameOrFilesystem);
             }
 
-            await Save(Filename, FileSystem);
+            await Save(Filename!, FileSystem);
         }
 
         private IBinaryDataAccessor Accessor { get; set; }
