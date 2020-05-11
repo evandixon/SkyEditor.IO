@@ -22,8 +22,7 @@ namespace SkyEditor.IO.Binary.Internal
 
         public byte[] ReadArray(long index, int length)
         {
-            int end = checked((int)(index + length));
-            return _rawData.AsSpan().Slice((int)index, end).ToArray();
+            return _rawData.AsSpan().Slice((int)index, length).ToArray();
         }
 
         public Task<byte[]> ReadArrayAsync()
@@ -174,8 +173,7 @@ namespace SkyEditor.IO.Binary.Internal
 
         public IBinaryDataAccessor Slice(long index, long length)
         {
-            int end = checked((int)(index + length));
-            return new MemoryBinaryDataAccessor(_rawData.AsMemory().Slice((int)index, end));
+            return new MemoryBinaryDataAccessor(_rawData.AsMemory().Slice((int)index, (int)length));
         }
 
         public void SetLength(long length)
