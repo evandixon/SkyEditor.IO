@@ -18,6 +18,9 @@ namespace SkyEditor.IO.FileSystem
 
         private readonly ZipArchive zipArchive;
 
+        private int tempCounter;
+        private readonly object tempCounterLock = new object();
+
         public string WorkingDirectory
         {
             get
@@ -37,6 +40,7 @@ namespace SkyEditor.IO.FileSystem
         }
 
         private string FixDirectory(string directory) => WorkingDirectory + directory.Replace(@"\", "/").TrimStart('/').TrimEnd('/') + "/";
+        private string FixFilename(string filename) => WorkingDirectory + filename.Replace(@"\", "/").TrimStart('/').TrimEnd('/');
 
         public long GetFileLength(string filename)
         {
@@ -87,12 +91,6 @@ namespace SkyEditor.IO.FileSystem
             return buffer;
         }
 
-        public Stream OpenFileReadOnly(string filename)
-        {
-            var file = GetEntry(filename) ?? throw new FileNotFoundException(Properties.Resources.FileSystem_ZipFileSystem_EntryNotFound, filename);
-            return new ReadOnlyStream(file.Open());
-        }
-
         public void ResetWorkingDirectory()
         {
             WorkingDirectory = "/";
@@ -111,52 +109,78 @@ namespace SkyEditor.IO.FileSystem
 
         public void CreateDirectory(string path)
         {
-            throw new NotImplementedException();
-        }
-
-        public void WriteAllBytes(string filename, byte[] data)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void WriteAllText(string filename, string data)
-        {
-            throw new NotImplementedException();
+            // Do nothing for now
+            // Zip files can only contain files, and not directories
+            // In the future, maybe we create a dummy file to preserve
         }
 
         public void CopyFile(string sourceFilename, string destinationFilename)
         {
-            throw new NotImplementedException();
+            using var sourceFile = OpenFileReadOnly(sourceFilename);
+            using var destinationFile = OpenFileWriteOnly(destinationFilename);
         }
 
         public void DeleteFile(string filename)
         {
-            throw new NotImplementedException();
+            var file = GetEntry(filename);
+            if (file != null)
+            {
+                file.Delete();
+            }
         }
 
         public void DeleteDirectory(string path)
         {
-            throw new NotImplementedException();
+            foreach (var file in EnumerateFiles(path, "*", topDirectoryOnly: false))
+            {
+                DeleteFile(file);
+            }
         }
 
         public string GetTempFilename()
         {
-            throw new NotImplementedException();
+            string? filename = null;
+            lock (tempCounterLock)
+            {
+                while (filename == null || FileExists(filename))
+                {
+                    filename = "temp/" + tempCounter++.ToString();
+                }
+            }
+            this.WriteAllBytes(filename, Array.Empty<byte>());
+            return filename;
         }
 
         public string GetTempDirectory()
         {
-            throw new NotImplementedException();
+            string? dirname = null;
+            lock (tempCounterLock)
+            {
+                while (dirname == null || DirectoryExists(dirname))
+                {
+                    dirname = "temp/" + tempCounter++.ToString();
+                }
+            }
+            this.CreateDirectory(dirname);
+            return dirname;
         }
 
         public Stream OpenFile(string filename)
         {
-            throw new NotImplementedException();
+            var file = GetEntry(filename) ?? zipArchive.CreateEntry(FixFilename(filename));
+            return file.Open();
+        }
+
+        public Stream OpenFileReadOnly(string filename)
+        {
+            var file = GetEntry(filename) ?? throw new FileNotFoundException(Properties.Resources.FileSystem_ZipFileSystem_EntryNotFound, filename);
+            return new ReadOnlyStream(file.Open());
         }
 
         public Stream OpenFileWriteOnly(string filename)
         {
-            throw new NotImplementedException();
+            var file = GetEntry(filename) ?? zipArchive.CreateEntry(FixFilename(filename));
+            return new WriteOnlyStream(file.Open());
         }
     }
 }

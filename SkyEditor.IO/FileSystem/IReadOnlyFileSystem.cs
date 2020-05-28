@@ -92,5 +92,7 @@ namespace SkyEditor.IO.FileSystem
         {
             return await ReadAllTextAsync(fileSystem, filename, Encoding.UTF8).ConfigureAwait(false);
         }
+
+        // Making ReadAllBytes be an extension method is tricker, because the original .Net code has to deal with determining the file size, which isn't always available: https://github.com/dotnet/runtime/blob/ccf6aedb63c37ea8e10e4f5b5d9d23a69bdd9489/src/libraries/System.IO.FileSystem/src/System/IO/File.cs#L341
     }
 }

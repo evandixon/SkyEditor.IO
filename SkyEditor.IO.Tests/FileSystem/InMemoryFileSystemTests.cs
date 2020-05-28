@@ -1,56 +1,18 @@
-﻿using FluentAssertions;
-using SkyEditor.IO.FileSystem;
+﻿using SkyEditor.IO.FileSystem;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using Xunit;
 
 namespace SkyEditor.IO.Tests.FileSystem
 {
-    public class ZipFileSystemTests : IDisposable
+    public class InMemoryFileSystemTests
     {
-        public ZipFileSystemTests()
-        {
-            tempFileName = Path.GetTempFileName();
-            File.Delete(tempFileName); // ZipFile.CreateFromDirectory can't overwrite files
-            ZipFile.CreateFromDirectory("TestData", tempFileName);
-            archiveStream = File.Open(tempFileName, FileMode.Open);
-            archive = new ZipArchive(archiveStream, ZipArchiveMode.Update);
-        }
-
-        private readonly string tempFileName;
-        private readonly Stream archiveStream;
-        private readonly ZipArchive archive;
-
-        public void Dispose()
-        {
-            archiveStream?.Dispose();
-            if (File.Exists(tempFileName))
-            {
-                File.Delete(tempFileName);
-            }
-        }
-
-        [Fact]
-        public void CanReadExistingFiles()
-        {
-            // Arrange
-            var fileSystem = new ZipFileSystem(archive);
-
-            // Act
-            var data = fileSystem.ReadAllText("Directory1/TextFile1.txt");
-
-            // Assert
-            data.Should().BeEquivalentTo("~/Directory1/TextFile1");
-        }
-
         [Fact]
         public void FileExistsNegativeTest()
         {
-            var provider = new ZipFileSystem(archive);
+            var provider = new InMemoryFileSystem();
             Assert.False(provider.FileExists(""), "No files should exist.");
             Assert.False(provider.FileExists("/temp/0"), "No files should exist.");
             Assert.False(provider.FileExists("/directory"), "No files should exist.");
@@ -60,7 +22,7 @@ namespace SkyEditor.IO.Tests.FileSystem
         [Fact]
         public void DirectoryExistsNegativeTest()
         {
-            var provider = new ZipFileSystem(archive);
+            var provider = new InMemoryFileSystem();
             Assert.False(provider.DirectoryExists(""), "No directories should exist.");
             Assert.False(provider.DirectoryExists("/temp/0"), "No directories should exist.");
             Assert.False(provider.DirectoryExists("/directory"), "No directories should exist.");
@@ -70,7 +32,7 @@ namespace SkyEditor.IO.Tests.FileSystem
         [Fact]
         public void CreateDirectory()
         {
-            var provider = new ZipFileSystem(archive);
+            var provider = new InMemoryFileSystem();
             provider.CreateDirectory("/directory");
             Assert.True(provider.DirectoryExists("/directory"), "Directory \"/directory\" not created");
 
@@ -81,7 +43,7 @@ namespace SkyEditor.IO.Tests.FileSystem
         [Fact]
         public void CreateDirectoryRecursive()
         {
-            var provider = new ZipFileSystem(archive);
+            var provider = new InMemoryFileSystem();
             provider.CreateDirectory("/root/directory");
             if (!provider.DirectoryExists("/root/directory"))
             {
@@ -93,7 +55,7 @@ namespace SkyEditor.IO.Tests.FileSystem
         [Fact]
         public void ByteReadWrite()
         {
-            var provider = new ZipFileSystem(archive);
+            var provider = new InMemoryFileSystem();
             byte[] testSequence = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
             provider.WriteAllBytes("/testFile.bin", testSequence);
 
@@ -104,7 +66,7 @@ namespace SkyEditor.IO.Tests.FileSystem
         [Fact]
         public void TextReadWrite()
         {
-            var provider = new ZipFileSystem(archive);
+            var provider = new InMemoryFileSystem();
             string testSequence = "ABCDEFGHIJKLMNOPQRSTUVWXYZqbcdefghijklmnopqrstuvwxyz0123456789àèéêç";
             provider.WriteAllText("/testFile.bin", testSequence);
 
@@ -115,7 +77,7 @@ namespace SkyEditor.IO.Tests.FileSystem
         [Fact]
         public void FileLength()
         {
-            var provider = new ZipFileSystem(archive);
+            var provider = new InMemoryFileSystem();
             byte[] testSequence = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
             provider.WriteAllBytes("/testFile.bin", testSequence);
 
@@ -125,7 +87,7 @@ namespace SkyEditor.IO.Tests.FileSystem
         [Fact]
         public void DeleteDirectory()
         {
-            var provider = new ZipFileSystem(archive);
+            var provider = new InMemoryFileSystem();
             provider.CreateDirectory("/directory/subDirectory");
             provider.CreateDirectory("/test/directory");
             if (!provider.DirectoryExists("/directory") || !provider.DirectoryExists("/test"))
@@ -143,7 +105,7 @@ namespace SkyEditor.IO.Tests.FileSystem
         [Fact]
         public void DeleteDirectoryRecursive()
         {
-            var provider = new ZipFileSystem(archive);
+            var provider = new InMemoryFileSystem();
             provider.CreateDirectory("/directory/subDirectory");
             provider.CreateDirectory("/test/directory");
             if (!provider.DirectoryExists("/directory") || !provider.DirectoryExists("/test"))
@@ -161,7 +123,7 @@ namespace SkyEditor.IO.Tests.FileSystem
         [Fact]
         public void DeleteFile()
         {
-            var provider = new ZipFileSystem(archive);
+            var provider = new InMemoryFileSystem();
             byte[] testSequence = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
             provider.WriteAllBytes("/testFile.bin", testSequence);
 
@@ -178,7 +140,7 @@ namespace SkyEditor.IO.Tests.FileSystem
         [Fact]
         public void CopyFile()
         {
-            var provider = new ZipFileSystem(archive);
+            var provider = new InMemoryFileSystem();
             byte[] testSequence = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
             provider.WriteAllBytes("/testFile.bin", testSequence);
 
@@ -196,7 +158,7 @@ namespace SkyEditor.IO.Tests.FileSystem
         [Fact]
         public void GetFiles()
         {
-            var provider = new ZipFileSystem(archive);
+            var provider = new InMemoryFileSystem();
             provider.WriteAllText("/dir1/file1.txt", "");
             provider.WriteAllText("/dir1/file2.txt", "");
             provider.WriteAllText("/dir1/file3.txt", "");
@@ -238,7 +200,7 @@ namespace SkyEditor.IO.Tests.FileSystem
         [Fact]
         public void GetTempFilename_NotNull()
         {
-            var provider = new ZipFileSystem(archive);
+            var provider = new InMemoryFileSystem();
             var tempFilename = provider.GetTempFilename();
             Assert.NotNull(tempFilename);
         }
@@ -246,7 +208,7 @@ namespace SkyEditor.IO.Tests.FileSystem
         [Fact]
         public void GetTempFilename_FileExists()
         {
-            var provider = new ZipFileSystem(archive);
+            var provider = new InMemoryFileSystem();
             var tempFilename = provider.GetTempFilename();
             Assert.True(provider.FileExists(tempFilename), "Temp file does not exist");
         }
@@ -254,7 +216,7 @@ namespace SkyEditor.IO.Tests.FileSystem
         [Fact]
         public void GetTempDirectory_NotNull()
         {
-            var provider = new ZipFileSystem(archive);
+            var provider = new InMemoryFileSystem();
             var tempDirectory = provider.GetTempDirectory();
             Assert.NotNull(tempDirectory);
         }
@@ -262,7 +224,7 @@ namespace SkyEditor.IO.Tests.FileSystem
         [Fact]
         public void GetTempDirectory_FileExists()
         {
-            var provider = new ZipFileSystem(archive);
+            var provider = new InMemoryFileSystem();
             var tempDirectory = provider.GetTempDirectory();
             Assert.True(provider.DirectoryExists(tempDirectory), "Temp directory does not exist");
         }

@@ -1,4 +1,6 @@
 ﻿using System.IO;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace SkyEditor.IO.FileSystem
 {
@@ -33,20 +35,6 @@ namespace SkyEditor.IO.FileSystem
         /// </summary>
         /// <param name="path">Full path of the new directory.</param>
         void CreateDirectory(string path);
-
-        /// <summary>
-        /// Writes the given byte array to disk.
-        /// </summary>
-        /// <param name="filename">Full path of the file.</param>
-        /// <param name="data">Array of byte containing the data to write to the file.</param>
-        void WriteAllBytes(string filename, byte[] data);
-
-        /// <summary>
-        /// Writes the given text to disk.
-        /// </summary>
-        /// <param name="filename">Full path of the file.</param>
-        /// <param name="data">String containing the data to write to the file.</param>
-        void WriteAllText(string filename, string data);
 
         /// <summary>
         /// Copies a file, overwriting the destination file if it exists.
@@ -92,5 +80,80 @@ namespace SkyEditor.IO.FileSystem
         /// <param name="filename">Full path of the file.</param>
         /// <returns>A <see cref="Stream"/> that has been opened with write permission for the requested file.</returns>
         Stream OpenFileWriteOnly(string filename);
+    }
+
+    public static class FileSystemExtensions
+    {
+        /// <summary>
+        /// Writes the given text to disk.
+        /// </summary>
+        /// <param name="filename">Full path of the file.</param>
+        /// <param name="data">String containing the data to write to the file.</param>
+        public static void WriteAllText(this IFileSystem fileSystem, string filename, string data)
+        {
+            using var stream = fileSystem.OpenFileWriteOnly(filename);
+            using var writer = new StreamWriter(stream);
+            writer.Write(data);
+        }
+
+        /// <summary>
+        /// Writes the given text to disk.
+        /// </summary>
+        /// <param name="filename">Full path of the file.</param>
+        /// <param name="data">String containing the data to write to the file.</param>
+        /// <param name="encoding">Desired encoding of the resulting binary data.</param>
+        public static void WriteAllText(this IFileSystem fileSystem, string filename, string data, Encoding encoding)
+        {
+            using var stream = fileSystem.OpenFileWriteOnly(filename);
+            using var writer = new StreamWriter(stream, encoding);
+            writer.Write(data);
+        }
+
+        /// <summary>
+        /// Writes the given text to disk.
+        /// </summary>
+        /// <param name="filename">Full path of the file.</param>
+        /// <param name="data">String containing the data to write to the file.</param>
+        public static async Task WriteAllTextAsync(this IFileSystem fileSystem, string filename, string data)
+        {
+            using var stream = fileSystem.OpenFileWriteOnly(filename);
+            using var writer = new StreamWriter(stream);
+            await writer.WriteAsync(data).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Writes the given text to disk.
+        /// </summary>
+        /// <param name="filename">Full path of the file.</param>
+        /// <param name="data">String containing the data to write to the file.</param>
+        /// <param name="encoding">Desired encoding of the resulting binary data.</param>
+        public static async Task WriteAllTextAsync(this IFileSystem fileSystem, string filename, string data, Encoding encoding)
+        {
+            using var stream = fileSystem.OpenFileWriteOnly(filename);
+            using var writer = new StreamWriter(stream, encoding);
+            await writer.WriteAsync(data).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Writes the given data to disk.
+        /// </summary>
+        /// <param name="filename">Full path of the file.</param>
+        /// <param name="data">Byte array containing the data to write to the file.</param>
+        public static void WriteAllBytes(this IFileSystem fileSystem, string filename, byte[] data)
+        {
+            using var stream = fileSystem.OpenFileWriteOnly(filename);
+            stream.Write(data, 0, data.Length);
+        }
+
+        /// <summary>
+        /// Writes the given data to disk.
+        /// </summary>
+        /// <param name="filename">Full path of the file.</param>
+        /// <param name="data">Byte array containing the data to write to the file.</param>
+        public static async Task WriteAllBytesAsync(this IFileSystem fileSystem, string filename, byte[] data)
+        {
+            using var stream = fileSystem.OpenFileWriteOnly(filename);
+            await stream.WriteAsync(data, 0, data.Length).ConfigureAwait(false);
+        }
     }
 }

@@ -61,11 +61,10 @@ namespace SkyEditor.IO.FileSystem
             WorkingDirectory = "/";
         }
 
-        protected ConcurrentDictionary<string, byte[]?> Files { get; set; }
-
         private int tempCounter;
         private readonly object tempCounterLock = new object();
 
+        protected ConcurrentDictionary<string, byte[]?> Files { get; set; }
 
         public string WorkingDirectory { get; set; }
 
@@ -163,11 +162,6 @@ namespace SkyEditor.IO.FileSystem
         public void WriteAllBytes(string filename, byte[] data)
         {
             Files[FixPath(filename)] = data;
-        }
-
-        public void WriteAllText(string filename, string data)
-        {
-            WriteAllBytes(FixPath(filename), Encoding.UTF8.GetBytes(data));
         }
 
         public void CopyFile(string sourceFilename, string destinationFilename)
