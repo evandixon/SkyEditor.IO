@@ -132,6 +132,15 @@
   <data name="Binary_ErrorReadOnly" xml:space="preserve">
     <value>Attempted to write to read-only data.</value>
   </data>
+  <data name="FileSystem_InMemoryFileSystem_FileNotFound" xml:space="preserve">
+    <value>Could not find a file at the given path.</value>
+  </data>
+  <data name="FileSystem_ZipFileSystem_EntryNotFound" xml:space="preserve">
+    <value>Could not find an entry with the given file path.</value>
+  </data>
+  <data name="FileSystem_ZipFileSystem_ReadAllBytes_FileTooLarge" xml:space="preserve">
+    <value>The requested file is too large to read as an array.</value>
+  </data>
   <data name="WriteOnlyBinaryDataAccessor_SourceDataTooLarge" xml:space="preserve">
     <value>Attempted to write more data than is allocated by the current data accessor</value>
   </data>

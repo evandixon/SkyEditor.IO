@@ -106,6 +106,33 @@ namespace SkyEditor.IO.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Could not find a file at the given path..
+        /// </summary>
+        internal static string FileSystem_InMemoryFileSystem_FileNotFound {
+            get {
+                return ResourceManager.GetString("FileSystem_InMemoryFileSystem_FileNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not find an entry with the given file path..
+        /// </summary>
+        internal static string FileSystem_ZipFileSystem_EntryNotFound {
+            get {
+                return ResourceManager.GetString("FileSystem_ZipFileSystem_EntryNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The requested file is too large to read as an array..
+        /// </summary>
+        internal static string FileSystem_ZipFileSystem_ReadAllBytes_FileTooLarge {
+            get {
+                return ResourceManager.GetString("FileSystem_ZipFileSystem_ReadAllBytes_FileTooLarge", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Attempted to write more data than is allocated by the current data accessor.
         /// </summary>
         internal static string WriteOnlyBinaryDataAccessor_SourceDataTooLarge {

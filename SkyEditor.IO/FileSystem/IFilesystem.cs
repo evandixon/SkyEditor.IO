@@ -2,7 +2,7 @@
 
 namespace SkyEditor.IO.FileSystem
 {
-    public interface IFileSystem
+    public interface IFileSystem : IReadOnlyFileSystem
     {
         /// <summary>
         /// The directory used when paths are not absolute
@@ -13,13 +13,6 @@ namespace SkyEditor.IO.FileSystem
         /// Resets the current working directory to its original value
         /// </summary>
         void ResetWorkingDirectory();
-
-        /// <summary>
-        /// Gets the length, in bytes, of the file at the given path.
-        /// </summary>
-        /// <param name="filename">Full path of the file.</param>
-        /// <returns>A long indicating the length in bytes of the file.</returns>
-        long GetFileLength(string filename);
 
         /// <summary>
         /// Determines whether the specified file exists.
@@ -40,37 +33,6 @@ namespace SkyEditor.IO.FileSystem
         /// </summary>
         /// <param name="path">Full path of the new directory.</param>
         void CreateDirectory(string path);
-
-        /// <summary>
-        /// Gets the full paths of the files in the directory at the given path.
-        /// </summary>
-        /// <param name="path">Full path of the directory from which to get the files.</param>
-        /// <param name="searchPattern">The search string to match against the names of files in path. This parameter can contain a combination of valid literal path and wildcard (* and ?) characters, but doesn't support regular expressions.</param>
-        /// <param name="topDirectoryOnly">True to search only the top directory.  False to search all child directories too.</param>
-        /// <returns>An array containing the full paths of the files matching the search criteria.</returns>
-        string[] GetFiles(string path, string searchPattern, bool topDirectoryOnly);
-
-        /// <summary>
-        /// Gets the full paths of the directories in the directory at the given path
-        /// </summary>
-        /// <param name="path">Full path of the directory from which to get the directories.</param>
-        /// <param name="topDirectoryOnly">True to search only the top directory.  False to search all child directories too.</param>
-        /// <returns>An array containing the full paths of the directories matching the search criteria.</returns>
-        string[] GetDirectories(string path, bool topDirectoryOnly);
-
-        /// <summary>
-        /// Reads a file from disk, and returns its contents as a byte array.
-        /// </summary>
-        /// <param name="filename">Full path of the file.</param>
-        /// <returns>An array of byte representing the contents of the file.</returns>
-        byte[] ReadAllBytes(string filename);
-
-        /// <summary>
-        /// Reads a file from disk, and returns its contents as a string.
-        /// </summary>
-        /// <param name="filename">Full path of the file.</param>
-        /// <returns>A string representing the contents of the file.</returns>
-        string ReadAllText(string filename);
 
         /// <summary>
         /// Writes the given byte array to disk.
@@ -123,13 +85,6 @@ namespace SkyEditor.IO.FileSystem
         /// <param name="filename">Full path of the file.</param>
         /// <returns>A <see cref="Stream"/> that has been opened with read and write permissions for the requested file.</returns>
         Stream OpenFile(string filename);
-
-        /// <summary>
-        /// Opens a file stream with Read privilages.
-        /// </summary>
-        /// <param name="filename">Full path of the file.</param>
-        /// <returns>A <see cref="Stream"/> that has been opened with read permission for the requested file.</returns>
-        Stream OpenFileReadOnly(string filename);
 
         /// <summary>
         /// Opens a file stream with Write privilages.
