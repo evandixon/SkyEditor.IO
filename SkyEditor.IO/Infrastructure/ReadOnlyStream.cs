@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
-namespace SkyEditor.IO.FileSystem
+namespace SkyEditor.IO.Infrastructure
 {
     public class ReadOnlyStream : Stream
     {

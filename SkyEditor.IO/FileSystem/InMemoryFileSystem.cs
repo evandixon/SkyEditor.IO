@@ -1,14 +1,21 @@
-﻿using System;
+﻿using SkyEditor.IO.FileSystem.Internal;
+using SkyEditor.IO.Infrastructure;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace SkyEditor.IO.FileSystem
 {
-    public class InMemoryFileSystem : IFileSystem
+    /// <summary>
+    /// An in-memory implementation of <see cref="IFileSystem"/>, primarily for testing purposes.
+    /// Note that the implementation is not 100% perfect and some specific operations may fail.
+    /// </summary>
+    public class InMemoryFileSystem : IExtendedFileSystem
     {
         /// <summary>
         /// Gets a regular expression for the given search pattern for use with <see cref="GetFiles(string, string, bool)"/>.  Do not provide asterisks.
@@ -32,11 +39,17 @@ namespace SkyEditor.IO.FileSystem
         /// Gets a regular expression for the given search pattern for use with <see cref="GetFiles(string, string, bool)"/>.
         /// </summary>
         /// <param name="searchPattern"></param>
+        /// <param name="forFullPath">Whether the regex should expect a full path. If false, it should only be matched with the name of a file.</param>
         /// <returns></returns>
-        public static string GetFileSearchRegex(string searchPattern)
+        public static string GetFileSearchRegex(string searchPattern, bool forFullPath = true)
         {
             var asteriskParts = searchPattern.Split('*');
-            var regexString = new StringBuilder(@"(.*)\/");
+            var regexString = new StringBuilder();
+
+            if (forFullPath)
+            {
+                regexString.Append(@"(.*)\/");
+            }
 
             foreach (var part in asteriskParts)
             {
@@ -150,18 +163,19 @@ namespace SkyEditor.IO.FileSystem
         public string[] GetDirectories(string path, bool topDirectoryOnly)
         {
             var pathLower = FixPath(path.ToLowerInvariant() + "/");
-            return Files.Where(x => x.Key.ToLowerInvariant().StartsWith(pathLower) && x.Value == null).Select(x => x.Key).ToArray();
+            var directoriesInPath = Files.Where(x => x.Key.ToLowerInvariant().StartsWith(pathLower) && x.Value == null).Select(x => x.Key).ToArray();
+            if (topDirectoryOnly)
+            {
+                var slashCount = path.Count(x => x == '/');
+                directoriesInPath = directoriesInPath.Where(d => d.Count(y => y == '/') == slashCount).ToArray();
+            }
+            return directoriesInPath;
         }
 
         public byte[] ReadAllBytes(string filename)
         {
             var filenameLower = FixPath(filename.ToLower());
             return Files.FirstOrDefault(x => x.Key.ToLowerInvariant() == filenameLower && x.Value != null).Value ?? throw new FileNotFoundException(Properties.Resources.FileSystem_InMemoryFileSystem_FileNotFound, filename);
-        }
-
-        public void WriteAllBytes(string filename, byte[] data)
-        {
-            Files[FixPath(filename)] = data;
         }
 
         public void CopyFile(string sourceFilename, string destinationFilename)
@@ -248,6 +262,29 @@ namespace SkyEditor.IO.FileSystem
                 WriteAllBytes(filename, new byte[] { });
             }
             return new MemoryStream(ReadAllBytes(FixPath(filename)), true);
+        }
+
+        public void WriteAllBytes(string filename, byte[] data)
+        {
+            Files[FixPath(filename)] = data;
+        }
+
+        public void WriteAllText(string filename, string data, Encoding encoding)
+        {
+            var bytes = encoding.GetBytes(data);
+            WriteAllBytes(filename, bytes);
+        }
+
+        public Task WriteAllTextAsync(string filename, string data, Encoding encoding)
+        {
+            WriteAllText(filename, data, encoding);
+            return Task.CompletedTask;
+        }
+
+        public Task WriteAllBytesAsync(string filename, byte[] data)
+        {
+            WriteAllBytes(filename, data);
+            return Task.CompletedTask;
         }
 
         #endregion

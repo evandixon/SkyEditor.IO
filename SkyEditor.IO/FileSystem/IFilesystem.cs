@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using SkyEditor.IO.FileSystem.Internal;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -91,9 +92,7 @@ namespace SkyEditor.IO.FileSystem
         /// <param name="data">String containing the data to write to the file.</param>
         public static void WriteAllText(this IFileSystem fileSystem, string filename, string data)
         {
-            using var stream = fileSystem.OpenFileWriteOnly(filename);
-            using var writer = new StreamWriter(stream);
-            writer.Write(data);
+            WriteAllText(fileSystem, filename, data, Encoding.UTF8);
         }
 
         /// <summary>
@@ -104,6 +103,12 @@ namespace SkyEditor.IO.FileSystem
         /// <param name="encoding">Desired encoding of the resulting binary data.</param>
         public static void WriteAllText(this IFileSystem fileSystem, string filename, string data, Encoding encoding)
         {
+            if (fileSystem is IExtendedFileSystem extendedFileSystem)
+            {
+                extendedFileSystem.WriteAllText(filename, data, encoding);
+                return;
+            }
+
             using var stream = fileSystem.OpenFileWriteOnly(filename);
             using var writer = new StreamWriter(stream, encoding);
             writer.Write(data);
@@ -116,9 +121,7 @@ namespace SkyEditor.IO.FileSystem
         /// <param name="data">String containing the data to write to the file.</param>
         public static async Task WriteAllTextAsync(this IFileSystem fileSystem, string filename, string data)
         {
-            using var stream = fileSystem.OpenFileWriteOnly(filename);
-            using var writer = new StreamWriter(stream);
-            await writer.WriteAsync(data).ConfigureAwait(false);
+            await WriteAllTextAsync(fileSystem, filename, data, Encoding.UTF8).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -129,6 +132,12 @@ namespace SkyEditor.IO.FileSystem
         /// <param name="encoding">Desired encoding of the resulting binary data.</param>
         public static async Task WriteAllTextAsync(this IFileSystem fileSystem, string filename, string data, Encoding encoding)
         {
+            if (fileSystem is IExtendedFileSystem extendedFileSystem)
+            {
+                await extendedFileSystem.WriteAllTextAsync(filename, data, encoding).ConfigureAwait(false);
+                return;
+            }
+
             using var stream = fileSystem.OpenFileWriteOnly(filename);
             using var writer = new StreamWriter(stream, encoding);
             await writer.WriteAsync(data).ConfigureAwait(false);
@@ -141,6 +150,12 @@ namespace SkyEditor.IO.FileSystem
         /// <param name="data">Byte array containing the data to write to the file.</param>
         public static void WriteAllBytes(this IFileSystem fileSystem, string filename, byte[] data)
         {
+            if (fileSystem is IExtendedFileSystem extendedFileSystem)
+            {
+                extendedFileSystem.WriteAllBytes(filename, data);
+                return;
+            }
+
             using var stream = fileSystem.OpenFileWriteOnly(filename);
             stream.Write(data, 0, data.Length);
         }
@@ -152,6 +167,12 @@ namespace SkyEditor.IO.FileSystem
         /// <param name="data">Byte array containing the data to write to the file.</param>
         public static async Task WriteAllBytesAsync(this IFileSystem fileSystem, string filename, byte[] data)
         {
+            if (fileSystem is IExtendedFileSystem extendedFileSystem)
+            {
+                await extendedFileSystem.WriteAllBytesAsync(filename, data).ConfigureAwait(false);
+                return;
+            }
+
             using var stream = fileSystem.OpenFileWriteOnly(filename);
             await stream.WriteAsync(data, 0, data.Length).ConfigureAwait(false);
         }

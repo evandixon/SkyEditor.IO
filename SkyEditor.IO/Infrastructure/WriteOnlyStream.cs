@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace SkyEditor.IO.FileSystem
+namespace SkyEditor.IO.Infrastructure
 {
     public class WriteOnlyStream : Stream
     {
