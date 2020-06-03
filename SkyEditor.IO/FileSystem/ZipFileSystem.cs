@@ -40,6 +40,8 @@ namespace SkyEditor.IO.FileSystem
             return result;
         }
 
+        private string FixFilename(string filename) => (WorkingDirectory + filename.Replace(@"\", "/")).TrimStart('/').TrimEnd('/');
+
         public long GetFileLength(string filename)
         {
             var file = GetEntry(filename) ?? throw new FileNotFoundException(Properties.Resources.FileSystem_ZipFileSystem_EntryNotFound, filename);
@@ -96,7 +98,7 @@ namespace SkyEditor.IO.FileSystem
 
         public bool FileExists(string filename)
         {
-            return GetEntry(filename) != null;
+            return GetEntry(FixFilename(filename)) != null;
         }
 
         public bool DirectoryExists(string path)
@@ -117,8 +119,6 @@ namespace SkyEditor.IO.FileSystem
 
         // private int tempCounter;
         // private readonly object tempCounterLock = new object();
-
-        // private string FixFilename(string filename) => WorkingDirectory + filename.Replace(@"\", "/").TrimStart('/').TrimEnd('/');
 
         //public void CreateDirectory(string path)
         //{

@@ -48,6 +48,24 @@ namespace SkyEditor.IO.Tests.FileSystem
         }
 
         [Fact]
+        public void FileExistsTest()
+        {
+            var provider = new ZipFileSystem(archive);
+            Assert.True(provider.FileExists("TextFile1.txt"));
+            Assert.True(provider.FileExists("/TextFile1.txt"));
+            Assert.True(provider.FileExists("Directory1/TextFile1.txt"));
+            Assert.True(provider.FileExists("/Directory1/TextFile1.txt"));
+        }
+
+        [Fact]
+        public void DirectoryExistsTest()
+        {
+            var provider = new ZipFileSystem(archive);
+            Assert.True(provider.DirectoryExists("Directory1"));
+            Assert.True(provider.DirectoryExists("/Directory1"));
+        }
+
+        [Fact]
         public void FileExistsNegativeTest()
         {
             var provider = new ZipFileSystem(archive);
