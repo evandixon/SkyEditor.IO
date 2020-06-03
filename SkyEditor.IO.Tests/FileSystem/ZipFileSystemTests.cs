@@ -41,10 +41,10 @@ namespace SkyEditor.IO.Tests.FileSystem
             var fileSystem = new ZipFileSystem(archive);
 
             // Act
-            var data = fileSystem.ReadAllText("Directory1/TextFile1.txt");
-
-            // Assert
-            data.Should().BeEquivalentTo("~/Directory1/TextFile1");
+            fileSystem.ReadAllText("Directory1/TextFile1.txt").Should().BeEquivalentTo("~/Directory1/TextFile1");
+            fileSystem.ReadAllText("/Directory1/TextFile1.txt").Should().BeEquivalentTo("~/Directory1/TextFile1");
+            fileSystem.ReadAllText("TextFile1.txt").Should().BeEquivalentTo("~/TextFile1");
+            fileSystem.ReadAllText("/TextFile1.txt").Should().BeEquivalentTo("~/TextFile1");
         }
 
         [Fact]

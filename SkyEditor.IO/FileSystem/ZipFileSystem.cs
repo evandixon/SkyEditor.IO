@@ -109,7 +109,7 @@ namespace SkyEditor.IO.FileSystem
 
         public Stream OpenFileReadOnly(string filename)
         {
-            var file = GetEntry(filename) ?? throw new FileNotFoundException(Properties.Resources.FileSystem_ZipFileSystem_EntryNotFound, filename);
+            var file = GetEntry(FixFilename(filename)) ?? throw new FileNotFoundException(Properties.Resources.FileSystem_ZipFileSystem_EntryNotFound, filename);
             return new ReadOnlyStream(file.Open());
         }
 
