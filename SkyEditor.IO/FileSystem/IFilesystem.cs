@@ -18,20 +18,6 @@ namespace SkyEditor.IO.FileSystem
         void ResetWorkingDirectory();
 
         /// <summary>
-        /// Determines whether the specified file exists.
-        /// </summary>
-        /// <param name="filename">Full path of the file.</param>
-        /// <returns>A boolean indicating whether or not a file exists at the given path.</returns>
-        bool FileExists(string filename);
-
-        /// <summary>
-        /// Determines whether the specified directory exists.
-        /// </summary>
-        /// <param name="path">Full path of the directory.</param>
-        /// <returns>A boolean indicating whether or not a directory exists at the given path.</returns>
-        bool DirectoryExists(string path);
-
-        /// <summary>
         /// Creates a directory at the given path.
         /// </summary>
         /// <param name="path">Full path of the new directory.</param>
