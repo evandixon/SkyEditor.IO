@@ -18,7 +18,7 @@ namespace SkyEditor.IO.Tests.FileSystem
             File.Delete(tempFileName); // ZipFile.CreateFromDirectory can't overwrite files
             ZipFile.CreateFromDirectory("TestData", tempFileName);
             archiveStream = File.Open(tempFileName, FileMode.Open);
-            archive = new ZipArchive(archiveStream, ZipArchiveMode.Update);
+            archive = new ZipArchive(archiveStream, ZipArchiveMode.Read);
         }
 
         private readonly string tempFileName;
@@ -41,10 +41,25 @@ namespace SkyEditor.IO.Tests.FileSystem
             var fileSystem = new ZipFileSystem(archive);
 
             // Act
-            fileSystem.ReadAllText("Directory1/TextFile1.txt").Should().BeEquivalentTo("~/Directory1/TextFile1");
-            fileSystem.ReadAllText("/Directory1/TextFile1.txt").Should().BeEquivalentTo("~/Directory1/TextFile1");
-            fileSystem.ReadAllText("TextFile1.txt").Should().BeEquivalentTo("~/TextFile1");
-            fileSystem.ReadAllText("/TextFile1.txt").Should().BeEquivalentTo("~/TextFile1");
+            var dirFile1 = fileSystem.ReadAllText("Directory1/TextFile1.txt");
+            var dirFile2 = fileSystem.ReadAllText("Directory1/TextFile1.txt");
+            var rootFile1 = fileSystem.ReadAllText("TextFile1.txt");
+            var rootFile2 = fileSystem.ReadAllText("/TextFile1.txt");
+            var dirFile1Bytes = fileSystem.ReadAllBytes("Directory1/TextFile1.txt");
+            var dirFile2Bytes = fileSystem.ReadAllBytes("Directory1/TextFile1.txt");
+            var rootFile1Bytes = fileSystem.ReadAllBytes("TextFile1.txt");
+            var rootFile2Bytes = fileSystem.ReadAllBytes("/TextFile1.txt");
+
+            // Assert
+            dirFile1.Should().BeEquivalentTo("~/Directory1/TextFile1");
+            dirFile2.Should().BeEquivalentTo("~/Directory1/TextFile1");
+            rootFile1.Should().BeEquivalentTo("~/TextFile1");
+            rootFile2.Should().BeEquivalentTo("~/TextFile1");
+
+            dirFile1Bytes.Should().BeEquivalentTo(Encoding.UTF8.GetBytes(dirFile1));
+            dirFile2Bytes.Should().BeEquivalentTo(Encoding.UTF8.GetBytes(dirFile2));
+            rootFile1Bytes.Should().BeEquivalentTo(Encoding.UTF8.GetBytes(rootFile1));
+            rootFile2Bytes.Should().BeEquivalentTo(Encoding.UTF8.GetBytes(rootFile2));
         }
 
         [Fact]

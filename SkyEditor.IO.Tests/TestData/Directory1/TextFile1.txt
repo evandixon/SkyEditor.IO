@@ -1,1 +1,1 @@
-﻿~/Directory1/TextFile1
+~/Directory1/TextFile1

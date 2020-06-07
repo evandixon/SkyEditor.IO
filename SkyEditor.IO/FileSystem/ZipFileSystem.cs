@@ -79,7 +79,7 @@ namespace SkyEditor.IO.FileSystem
 
         public byte[] ReadAllBytes(string filename)
         {
-            var file = GetEntry(filename) ?? throw new FileNotFoundException(Properties.Resources.FileSystem_ZipFileSystem_EntryNotFound, filename);
+            var file = GetEntry(FixFilename(filename)) ?? throw new FileNotFoundException(Properties.Resources.FileSystem_ZipFileSystem_EntryNotFound, filename);
             if (file.Length > int.MaxValue)
             {
                 throw new ArgumentException(Properties.Resources.FileSystem_ZipFileSystem_ReadAllBytes_FileTooLarge, nameof(filename));
