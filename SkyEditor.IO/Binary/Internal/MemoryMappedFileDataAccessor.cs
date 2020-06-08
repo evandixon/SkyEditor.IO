@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace SkyEditor.IO.Binary.Internal
 {
-    internal class MemoryMappedFileDataAccessor : IBinaryDataAccessor
+    internal class MemoryMappedFileDataAccessor : IBinaryDataAccessor, IDisposable
     {
         public MemoryMappedFileDataAccessor(MemoryMappedFile memoryMappedFile, long maxLength)
         {

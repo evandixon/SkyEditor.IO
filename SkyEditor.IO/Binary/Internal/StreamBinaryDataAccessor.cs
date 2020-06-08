@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace SkyEditor.IO.Binary.Internal
 {
-    internal class StreamBinaryDataAccessor : IVariableLengthBinaryDataAccessor, IReadOnlyBinarySequentialDataAccessor
+    internal class StreamBinaryDataAccessor : IVariableLengthBinaryDataAccessor, IReadOnlyBinarySequentialDataAccessor, IDisposable
     {
         public StreamBinaryDataAccessor(Stream stream)
         {

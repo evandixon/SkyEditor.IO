@@ -81,6 +81,9 @@ namespace SkyEditor.IO.Binary
                     // We can't use a MemoryMapped file.
                     // Streams are more reliable anyway; just slower.
                 }
+
+                // If we got this far, we couldn't use the memory mapped file
+                memoryMappedFile.Dispose();
             }
 
             // If all else fails, we can use a stream.    
