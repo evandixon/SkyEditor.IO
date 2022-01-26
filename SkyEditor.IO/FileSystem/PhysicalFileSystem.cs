@@ -1,13 +1,16 @@
-﻿using System;
+﻿using SkyEditor.IO.FileSystem.Internal;
+using System;
 using System.IO;
 using System.IO.MemoryMappedFiles;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace SkyEditor.IO.FileSystem
 {
     /// <summary>
     /// Implementation of <see cref="IFileSystem"/> that wraps <see cref="System.IO.File"/> and <see cref="System.IO.Directory"/> (i.e. the physical file system).
     /// </summary>
-    public class PhysicalFileSystem : IFileSystem, IMemoryMappableFileSystem
+    public class PhysicalFileSystem : IFileSystem, IMemoryMappableFileSystem, IExtendedFileSystem
     {
         private static readonly Lazy<PhysicalFileSystem> InstanceLazy = new Lazy<PhysicalFileSystem>(() => new PhysicalFileSystem());
 
@@ -181,6 +184,31 @@ namespace SkyEditor.IO.FileSystem
         public MemoryMappedFile OpenMemoryMappedFile(string filename)
         {
             return MemoryMappedFile.CreateFromFile(filename);
+        }
+
+        public void WriteAllText(string filename, string data, Encoding encoding)
+        {
+            File.WriteAllText(filename, data, encoding);
+        }
+
+        public async Task WriteAllTextAsync(string filename, string data, Encoding encoding)
+        {
+#if NETSTANDARD2_0
+            WriteAllText(filename, data, encoding);
+            await Task.CompletedTask;
+#else
+            await File.WriteAllTextAsync(filename, data, encoding).ConfigureAwait(false);
+#endif
+        }
+
+        public async Task WriteAllBytesAsync(string filename, byte[] data)
+        {
+#if NETSTANDARD2_0
+            WriteAllBytes(filename, data);
+            await Task.CompletedTask;
+#else
+            await File.WriteAllBytesAsync(filename, data).ConfigureAwait(false);
+#endif
         }
     }
 }

@@ -143,6 +143,7 @@ namespace SkyEditor.IO.FileSystem
             }
 
             using var stream = fileSystem.OpenFileWriteOnly(filename);
+            stream.SetLength(data.Length);
             stream.Write(data, 0, data.Length);
         }
 
@@ -160,6 +161,7 @@ namespace SkyEditor.IO.FileSystem
             }
 
             using var stream = fileSystem.OpenFileWriteOnly(filename);
+            stream.SetLength(data.Length);
             await stream.WriteAsync(data, 0, data.Length).ConfigureAwait(false);
         }
     }
