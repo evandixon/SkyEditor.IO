@@ -1,0 +1,75 @@
+name: Build
+
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:        
+        fetch-depth: 0
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Install GitVersion
+      run: dotnet tool install GitVersion.Tool --global --version 5.*
+
+    - name: GitVersion
+      id: gitversion
+      run: dotnet-gitversion -output file -outputfile version_info.json
+
+    - name: Grab version
+      run: |  
+          SEMVER=$(jq -r '.SemVer' version_info.json)
+          echo "semver=$SEMVER" >> "$GITHUB_ENV"
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build
+      run: dotnet build --no-restore -c Release
+
+    - name: Pack
+      run: dotnet pack SkyEditor.IO/SkyEditor.IO.csproj --no-restore -c Release -o nuget -p:Version=$semver
+
+    - name: Upload nuget packages as artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: nuget
+        path: nuget
+
+    - name: Test
+      run: dotnet test --no-build --verbosity normal -c Release
+        
+  publish-nuget:
+    needs: build
+    runs-on: ubuntu-latest
+
+    # Only run for main branch
+    if: github.ref == 'refs/heads/master'
+
+    steps:
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Download artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: nuget
+        path: nuget
+
+    - name: Upload Packages
+      env:
+        NUGET_API_KEY: ${{ secrets.NUGET_PPORG_PUBLISH_KEY }}
+      run: dotnet nuget push ./nuget/*.nupkg --source https://api.nuget.org/v3/index.json --skip-duplicate --api-key $NUGET_API_KEY
